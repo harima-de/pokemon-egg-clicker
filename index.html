@@ -1,0 +1,1549 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>포켓몬 알 클리커 V2</title>
+<style>
+:root{
+  --bg:#08111f;--panel:#111c2e;--panel2:#16243a;--text:#f8fafc;--muted:#9fb0c6;
+  --blue:#4f8cff;--cyan:#54d7ff;--green:#56e39f;--yellow:#ffd75e;--red:#ff6e91;--purple:#be8cff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:
+radial-gradient(circle at 25% 0%,#1b3153 0,transparent 36%),
+radial-gradient(circle at 80% 20%,#2a1748 0,transparent 30%),var(--bg);
+color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input{font:inherit}
+button{-webkit-tap-highlight-color:transparent}
+.app{max-width:1220px;margin:0 auto;padding:16px}
+.topbar{display:flex;justify-content:space-between;gap:14px;align-items:center;margin-bottom:14px}
+.logo{font-weight:950;font-size:clamp(22px,3.2vw,34px);letter-spacing:-.5px}
+.logo small{display:block;font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.5px;margin-top:2px}
+.statrow{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.stat{padding:8px 11px;border-radius:14px;background:rgba(255,255,255,.065);border:1px solid rgba(255,255,255,.08);font-size:13px;white-space:nowrap}
+.stat b{font-size:14px}
+.layout{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(350px,.92fr);gap:14px}
+.panel{background:linear-gradient(180deg,rgba(21,34,55,.94),rgba(10,20,35,.96));border:1px solid rgba(255,255,255,.085);border-radius:24px;box-shadow:0 22px 55px rgba(0,0,0,.28)}
+.game{min-height:720px;position:relative;overflow:hidden;padding:20px}
+.right{display:grid;grid-template-rows:auto 1fr;gap:14px}
+.shop{padding:17px}
+.dex{padding:17px;min-height:470px}
+.section-title{display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:900;font-size:18px}
+.section-title .minor{font-size:12px;color:var(--muted);font-weight:700}
+.stage{display:flex;flex-direction:column;align-items:center;padding-top:8px}
+.egg-info{font-size:13px;color:var(--muted);margin:4px 0 10px}
+.egg{
+  width:220px;height:285px;border-radius:52% 52% 46% 46% / 62% 62% 38% 38%;
+  position:relative;display:grid;place-items:center;cursor:pointer;user-select:none;
+  border:6px solid rgba(255,255,255,.9);
+  box-shadow:inset 0 -20px rgba(0,0,0,.08),0 20px 48px rgba(0,0,0,.35);
+  transition:transform .08s ease,filter .18s ease,box-shadow .18s ease;
+  overflow:hidden;
+}
+.egg:active{transform:scale(.95) rotate(-1deg)}
+.egg.normal{
+  background:
+    radial-gradient(circle at 32% 28%, #d94b5c 0 5%, transparent 5.5%),
+    radial-gradient(circle at 70% 36%, #4e91d9 0 5%, transparent 5.5%),
+    radial-gradient(circle at 42% 66%, #f2c84b 0 5%, transparent 5.5%),
+    radial-gradient(circle at 68% 74%, #6fc98a 0 5%, transparent 5.5%),
+    linear-gradient(160deg,#fffef7 0%,#eef2ec 60%,#d9ded8 100%);
+}
+.egg.silver{
+  background:
+    radial-gradient(circle at 30% 30%, #ffffff 0 4%, transparent 4.5%),
+    radial-gradient(circle at 70% 42%, #dce8f4 0 5%, transparent 5.5%),
+    radial-gradient(circle at 45% 70%, #8ba7c4 0 5%, transparent 5.5%),
+    linear-gradient(160deg,#f7fbff 0%,#c8d4df 42%,#9eacba 72%,#eef4f8 100%);
+  box-shadow:0 0 24px rgba(165,198,230,.18),inset 0 -20px rgba(0,0,0,.09),0 20px 48px rgba(0,0,0,.35);
+}
+.egg.gold{
+  background:
+    radial-gradient(circle at 30% 30%, #fff9cb 0 4%, transparent 4.5%),
+    radial-gradient(circle at 68% 40%, #ffdd59 0 5%, transparent 5.5%),
+    radial-gradient(circle at 42% 72%, #d99514 0 5%, transparent 5.5%),
+    linear-gradient(160deg,#fff8cb 0%,#ffd95a 42%,#e8ad20 72%,#fff0a0 100%);
+  box-shadow:0 0 28px rgba(255,195,54,.22),inset 0 -20px rgba(0,0,0,.09),0 20px 48px rgba(0,0,0,.35);
+}
+.egg.rainbow{
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,.9) 0 4%, transparent 4.5%),
+    radial-gradient(circle at 68% 42%, rgba(255,255,255,.55) 0 5%, transparent 5.5%),
+    radial-gradient(circle at 42% 72%, rgba(255,255,255,.35) 0 5%, transparent 5.5%),
+    linear-gradient(160deg,#ff9eb0 0%,#ffc775 18%,#ffe66f 34%,#8fe6a6 50%,#8bdcff 66%,#c1adff 82%,#ff9ee2 100%);
+  box-shadow:0 0 34px rgba(188,146,255,.25),0 0 16px rgba(95,210,255,.17),inset 0 -20px rgba(0,0,0,.08),0 20px 48px rgba(0,0,0,.35);
+}
+.egg::before{
+  content:"";
+  position:absolute;
+  left:50%;top:49%;
+  transform:translate(-50%,-50%);
+  width:112px;height:28px;
+  border-radius:999px;
+  background:rgba(255,255,255,.48);
+  box-shadow:0 0 0 4px rgba(39,53,72,.12);
+}
+.egg::after{
+  content:"";
+  position:absolute;
+  left:50%;top:49%;
+  transform:translate(-50%,-50%);
+  width:34px;height:34px;
+  border-radius:50%;
+  background:#ffffff;
+  border:4px solid rgba(39,53,72,.26);
+  box-shadow:0 0 0 5px rgba(255,255,255,.35);
+}
+.egg.silver::before{background:rgba(111,140,170,.62)}
+.egg.gold::before{background:rgba(197,129,18,.64)}
+.egg.rainbow::before{background:rgba(255,255,255,.34)}
+.crack-svg{position:absolute;inset:35px 36px;opacity:0;transition:.15s;filter:drop-shadow(0 4px 3px rgba(0,0,0,.35));mix-blend-mode:multiply}
+.egg.crack1 .crack-svg{opacity:.28}.egg.crack2 .crack-svg{opacity:.62}.egg.crack3 .crack-svg{opacity:1}
+.egg.hit{animation:hit .12s ease}
+@keyframes hit{0%{transform:translateX(0)}30%{transform:translateX(-7px) rotate(-2deg)}70%{transform:translateX(7px) rotate(2deg)}100%{transform:translateX(0)}}
+.progress{width:min(430px,90%);height:14px;border-radius:99px;background:#07101d;overflow:hidden;border:1px solid rgba(255,255,255,.08);margin-top:20px}
+.progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .12s}
+.tapline{margin-top:8px;font-size:13px;color:var(--muted)}
+.result{min-height:260px;width:100%;display:grid;place-items:center;margin-top:14px}
+.result-card{width:min(440px,95%);border-radius:24px;padding:17px;text-align:center;background:linear-gradient(160deg,rgba(255,255,255,.085),rgba(255,255,255,.035));border:1px solid rgba(255,255,255,.1);animation:pop .32s cubic-bezier(.2,.9,.25,1.15)}
+.result-card.shiny{box-shadow:0 0 0 1px rgba(255,219,92,.35),0 0 38px rgba(255,215,94,.23)}
+@keyframes pop{from{opacity:0;transform:scale(.72) translateY(18px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.poke-img{width:145px;height:145px;object-fit:contain;image-rendering:pixelated}
+.badges{display:flex;justify-content:center;gap:6px;min-height:25px;margin-bottom:2px}
+.badge{padding:4px 8px;border-radius:999px;font-size:11px;font-weight:950}
+.badge.new{background:#ff4f76}.badge.shiny{background:#f8d34f;color:#332600}
+.pname{font-size:27px;font-weight:950;letter-spacing:-.7px}
+.eng{font-size:12px;color:var(--muted);margin-top:2px}
+.rarity{font-weight:900;margin-top:5px}
+.Common{color:#cbd5e1}.Uncommon{color:#78e6a1}.Rare{color:#6fd4ff}.Epic{color:#c294ff}.Legendary{color:#ffd75e}.Mythical{color:#ff7da0}
+.reward{font-size:13px;color:#bdebd1;margin-top:5px}
+.actionrow{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:4px}
+.btn{border:0;color:#fff;background:#2b3e5d;padding:10px 13px;border-radius:14px;font-weight:850;cursor:pointer}
+.btn.primary{background:#3d72e8}.btn.danger{background:#7c2740}.btn:disabled{opacity:.45;cursor:not-allowed}
+.flash{position:absolute;inset:0;background:white;opacity:0;pointer-events:none;z-index:5}.flash.go{animation:flash .44s ease}
+@keyframes flash{0%{opacity:0}30%{opacity:.92}100%{opacity:0}}
+.sparkles{position:absolute;inset:0;pointer-events:none;z-index:6;overflow:hidden}
+.spark{position:absolute;font-size:18px;animation:spark 1.1s ease forwards}
+@keyframes spark{0%{opacity:0;transform:translateY(20px) scale(.5)}20%{opacity:1}100%{opacity:0;transform:translateY(-110px) scale(1.45) rotate(40deg)}}
+.shop-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.upgrade{background:#0b1728;border:1px solid rgba(255,255,255,.075);border-radius:16px;padding:11px}
+.upgrade .u-title{font-weight:900;font-size:13px}
+.upgrade .u-desc{color:var(--muted);font-size:10px;min-height:30px;margin:4px 0 8px;line-height:1.35}
+.upgrade .u-lv{font-size:11px;color:#c8d4e5;margin-bottom:6px}
+.upgrade button{width:100%;border:0;border-radius:11px;padding:8px 7px;background:#254f9c;color:white;font-weight:850;cursor:pointer;font-size:11px}
+.upgrade button:disabled{opacity:.4}
+.dex-tools{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.search{flex:1;min-width:150px;background:#07101d;color:#fff;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 11px;outline:none}
+.filters{display:flex;gap:5px;flex-wrap:wrap}.filter{border:1px solid rgba(255,255,255,.08);background:#0a1627;color:#bdc9d9;border-radius:999px;padding:7px 9px;font-size:11px;cursor:pointer}.filter.active{background:#315fb5;color:#fff}
+.dex-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;max-height:410px;overflow:auto;padding-right:3px}
+.dex-card{background:#091526;border:1px solid rgba(255,255,255,.065);border-radius:13px;padding:7px;text-align:center;position:relative}
+.dex-card.locked{filter:saturate(0);opacity:.38}
+.dex-card img{width:58px;height:58px;object-fit:contain;image-rendering:pixelated}
+.dex-no{font-size:9px;color:var(--muted)}.dex-name{font-size:11px;font-weight:850;line-height:1.2;min-height:26px;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden}.dex-meta{font-size:9px;color:#86dca8}
+.shiny-dot{position:absolute;right:6px;top:5px;font-size:12px}
+.trophy{display:none;margin:12px auto 0;max-width:430px;padding:11px 12px;border-radius:16px;background:linear-gradient(90deg,rgba(255,215,94,.16),rgba(190,140,255,.16));border:1px solid rgba(255,215,94,.35);text-align:center;font-weight:850}
+.trophy.show{display:block}
+.foot{font-size:10px;color:#607087;text-align:center;margin-top:10px}
+
+.special-encounter{
+  position:fixed;inset:0;z-index:100;
+  display:none;align-items:center;justify-content:center;
+  pointer-events:none;overflow:hidden;
+  background:rgba(1,7,15,.82);
+  backdrop-filter:blur(2px);
+}
+.special-encounter.show{display:flex;animation:encounterFade 1.9s ease forwards}
+.special-encounter .ring{
+  position:absolute;width:220px;height:220px;border-radius:50%;
+  border:4px solid rgba(255,255,255,.75);
+  box-shadow:0 0 30px rgba(255,255,255,.55), inset 0 0 30px rgba(255,255,255,.35);
+  animation:ringPulse .7s ease-in-out infinite alternate;
+}
+.special-encounter .ring.r2{width:350px;height:350px;opacity:.55;animation-delay:.08s}
+.special-encounter .ring.r3{width:500px;height:500px;opacity:.3;animation-delay:.16s}
+.special-encounter .encounter-text{
+  position:relative;z-index:3;text-align:center;
+  font-weight:1000;letter-spacing:-1px;
+  text-shadow:0 0 12px rgba(255,255,255,.55);
+  transform:translateY(4px);
+}
+.special-encounter .encounter-title{font-size:clamp(28px,6vw,62px)}
+.special-encounter .encounter-sub{margin-top:8px;font-size:clamp(13px,2.2vw,20px);font-weight:850;opacity:.9}
+.special-encounter .beam{
+  position:absolute;width:9px;height:65vh;
+  background:linear-gradient(to bottom,transparent,rgba(255,255,255,.85),transparent);
+  filter:blur(1px);opacity:.55;
+  transform-origin:center;
+}
+.special-encounter.legendary{
+  background:
+    radial-gradient(circle at center,rgba(255,213,72,.25),transparent 28%),
+    rgba(2,9,18,.86);
+}
+.special-encounter.legendary .encounter-title{color:#ffe179}
+.special-encounter.legendary .ring{border-color:#ffe179;box-shadow:0 0 42px rgba(255,211,73,.62),inset 0 0 30px rgba(255,211,73,.25)}
+.special-encounter.mewtwo{
+  background:
+    radial-gradient(circle at center,rgba(158,86,255,.34),transparent 30%),
+    rgba(7,2,18,.89);
+}
+.special-encounter.mewtwo .encounter-title{color:#c69cff}
+.special-encounter.mewtwo .ring{border-color:#ad78ff;box-shadow:0 0 48px rgba(157,86,255,.68),inset 0 0 34px rgba(157,86,255,.3)}
+.special-encounter.mew{
+  background:
+    radial-gradient(circle at center,rgba(255,139,205,.36),transparent 30%),
+    rgba(18,3,16,.88);
+}
+.special-encounter.mew .encounter-title{color:#ffb3df}
+.special-encounter.mew .ring{border-color:#ff9fd6;box-shadow:0 0 48px rgba(255,121,198,.7),inset 0 0 34px rgba(255,121,198,.3)}
+.special-encounter.mew .encounter-title{animation:mewFloat .9s ease-in-out infinite alternate}
+@keyframes encounterFade{
+  0%{opacity:0}12%{opacity:1}75%{opacity:1}100%{opacity:0}
+}
+@keyframes ringPulse{
+  from{transform:scale(.88) rotate(0deg);opacity:.35}
+  to{transform:scale(1.08) rotate(12deg);opacity:.9}
+}
+@keyframes mewFloat{
+  from{transform:translateY(-3px) scale(.98)}
+  to{transform:translateY(7px) scale(1.03)}
+}
+@keyframes screenShake{
+  0%,100%{transform:translate(0,0)}
+  20%{transform:translate(-5px,2px)}
+  40%{transform:translate(5px,-2px)}
+  60%{transform:translate(-3px,-2px)}
+  80%{transform:translate(3px,2px)}
+}
+body.special-shake .app{animation:screenShake .35s ease}
+
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#050c16;border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:10px 14px;opacity:0;pointer-events:none;transition:.2s;z-index:20}.toast.show{opacity:1}
+
+.special-encounter.pikachu{
+  background:radial-gradient(circle at center,rgba(255,224,77,.34),transparent 30%),rgba(18,15,2,.88);
+}
+.special-encounter.pikachu .encounter-title{color:#ffe96b}
+.special-encounter.pikachu .ring{border-color:#ffe34f;box-shadow:0 0 46px rgba(255,226,70,.68),inset 0 0 30px rgba(255,226,70,.26)}
+.special-encounter.charizard{
+  background:radial-gradient(circle at center,rgba(255,116,45,.36),transparent 30%),rgba(20,6,2,.9);
+}
+.special-encounter.charizard .encounter-title{color:#ff9b55}
+.special-encounter.charizard .ring{border-color:#ff7b32;box-shadow:0 0 48px rgba(255,106,37,.7),inset 0 0 32px rgba(255,106,37,.28)}
+.special-encounter.gengar{
+  background:radial-gradient(circle at center,rgba(139,84,255,.34),transparent 30%),rgba(8,3,18,.91);
+}
+.special-encounter.gengar .encounter-title{color:#b998ff}
+.special-encounter.gengar .ring{border-color:#986cff;box-shadow:0 0 46px rgba(136,88,255,.68),inset 0 0 30px rgba(136,88,255,.26)}
+.special-encounter.eevee{
+  background:radial-gradient(circle at center,rgba(235,179,112,.34),transparent 30%),rgba(19,11,4,.9);
+}
+.special-encounter.eevee .encounter-title{color:#f0c48d}
+.special-encounter.eevee .ring{border-color:#d8a168;box-shadow:0 0 46px rgba(223,166,97,.62),inset 0 0 30px rgba(223,166,97,.24)}
+.special-encounter.snorlax{
+  background:radial-gradient(circle at center,rgba(92,171,214,.30),transparent 30%),rgba(3,12,18,.91);
+}
+.special-encounter.snorlax .encounter-title{color:#9ed7f3}
+.special-encounter.snorlax .ring{border-color:#72bfe8;box-shadow:0 0 44px rgba(88,179,224,.62),inset 0 0 30px rgba(88,179,224,.24)}
+.special-encounter.gyarados{
+  background:radial-gradient(circle at center,rgba(62,143,255,.32),transparent 30%),rgba(2,8,20,.91);
+}
+.special-encounter.gyarados .encounter-title{color:#80b6ff}
+.special-encounter.gyarados .ring{border-color:#4f93ff;box-shadow:0 0 46px rgba(68,135,255,.64),inset 0 0 30px rgba(68,135,255,.24)}
+.result-card.ready-next{cursor:pointer;box-shadow:0 0 0 2px rgba(79,140,255,.25),0 12px 30px rgba(0,0,0,.18)}
+.result-card.ready-next::after{
+  content:"카드를 눌러 다음 알";
+  display:block;margin-top:10px;font-size:12px;font-weight:900;color:#9fc3ff;
+}
+
+@media(max-width:920px){.layout{grid-template-columns:1fr}.right{grid-template-rows:auto auto}.game{min-height:auto}.dex-grid{grid-template-columns:repeat(6,1fr)}}
+@media(max-width:650px){.topbar{align-items:flex-start;flex-direction:column}.statrow{justify-content:flex-start}.game{padding:15px}.egg{width:180px;height:235px}.shop-grid{grid-template-columns:1fr}.dex-grid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:420px){.dex-grid{grid-template-columns:repeat(3,1fr)}}
+
+.variant-sprite-img{
+  max-width:100%;max-height:100%;
+  object-fit:contain;
+  image-rendering:pixelated;
+  filter:drop-shadow(0 3px 4px rgba(0,0,0,.28));
+}
+.pikachu-preview-locked{
+  opacity:.28;
+  filter:grayscale(.9) brightness(.8);
+}
+.dex-card.pikachu-card .dex-name{
+  font-size:13px;line-height:1.2;min-height:30px;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+}
+
+
+.variant-sprite-wrap{
+  width:88px;height:88px;margin:0 auto 6px;
+  display:flex;align-items:center;justify-content:center;
+}
+.variant-sprite-wrap.large{
+  width:150px;height:150px;margin:0 auto 8px;
+  display:flex;align-items:center;justify-content:center;
+}
+.variant-sprite-img{
+  max-width:100%;max-height:100%;
+  object-fit:contain;
+  image-rendering:pixelated;
+  filter:drop-shadow(0 3px 4px rgba(0,0,0,.28));
+}
+.pikachu-preview-locked{
+  opacity:.30;
+  filter:grayscale(.88) brightness(.78);
+}
+.dex-card.pikachu-card .dex-name{
+  font-size:13px;line-height:1.2;min-height:30px;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+}
+.world-glow{
+  animation:worldCardPulse 1.15s ease-in-out infinite alternate;
+}
+@keyframes worldCardPulse{
+  from{filter:drop-shadow(0 0 2px rgba(255,215,98,.18)) drop-shadow(0 0 4px rgba(73,196,255,.10))}
+  to{filter:drop-shadow(0 0 5px rgba(255,215,98,.28)) drop-shadow(0 0 11px rgba(73,196,255,.20))}
+}
+.special-encounter.worldpikachu{
+  background:
+    radial-gradient(circle at 50% 40%, rgba(255,231,115,.28), transparent 22%),
+    radial-gradient(circle at 35% 65%, rgba(86,194,255,.24), transparent 24%),
+    radial-gradient(circle at 70% 62%, rgba(255,112,189,.20), transparent 24%),
+    rgba(8,10,22,.90);
+}
+.special-encounter.worldpikachu .encounter-title{
+  color:#fff0a0;
+  text-shadow:0 0 18px rgba(255,225,92,.45),0 0 36px rgba(74,190,255,.22);
+}
+.special-encounter.worldpikachu .ring{
+  border-color:#79d8ff;
+  box-shadow:0 0 48px rgba(100,214,255,.55), inset 0 0 32px rgba(255,209,74,.18);
+}
+.special-encounter.worldpikachu .beam{
+  background:linear-gradient(to bottom,transparent,rgba(121,216,255,.95),transparent);
+  opacity:.7;
+}
+.special-encounter.worldpikachu .encounter-sub::before{
+  content:"🌍 ";
+}
+.world-ribbon{
+  display:inline-block;margin-top:10px;padding:8px 14px;
+  font-size:12px;font-weight:1000;letter-spacing:.4px;
+  border-radius:999px;color:#fff9cf;
+  background:linear-gradient(90deg, rgba(42,98,185,.9), rgba(0,168,215,.85), rgba(246,178,59,.88));
+  box-shadow:0 8px 22px rgba(0,0,0,.22), inset 0 0 18px rgba(255,255,255,.18);
+}
+.world-confetti{
+  position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:2;
+}
+.world-confetti i{
+  position:absolute;top:52%;left:50%;
+  width:12px;height:12px;border-radius:3px;
+  opacity:0;transform:translate(-50%,-50%) scale(.5) rotate(0deg);
+  animation:worldConfetti 1.55s ease-out forwards;
+}
+@keyframes worldConfetti{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.4) rotate(0deg)}
+  15%{opacity:1}
+  100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(1.05) rotate(var(--rot))}
+}
+
+
+.variant-sheet-sprite{
+  width:100%;height:100%;
+  background-repeat:no-repeat;
+  image-rendering:pixelated;
+  image-rendering:crisp-edges;
+  filter:drop-shadow(0 3px 4px rgba(0,0,0,.28));
+}
+
+
+/* ===== V4.0 Kanto Master ===== */
+.endgame-panel,.mission-panel,.passport-panel,.shiny-hunt-panel{margin-top:14px}
+.endgame-lock{
+  display:none;padding:12px;border-radius:14px;background:#091526;color:#8393a9;
+  font-size:12px;text-align:center;border:1px dashed rgba(255,255,255,.1)
+}
+.master-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}
+.end-stat{background:#091526;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:10px;text-align:center}
+.end-stat b{font-size:19px}.end-stat span{font-size:11px;color:#ffd86b;margin-left:2px}.end-stat small{display:block;color:#8495aa;font-size:9px;margin-top:3px}
+.mini-progress,.passport-progress,.boss-gauge{height:10px;border-radius:999px;background:#07101d;overflow:hidden;margin-top:9px;border:1px solid rgba(255,255,255,.06)}
+.mini-progress i,.passport-progress i,.boss-gauge i{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,#ffd75e,#ff9c48,#ff6e91);transition:.35s}
+.end-note{font-size:10px;line-height:1.45;color:#7f91aa;margin-top:8px}
+.master-stars{font-size:10px;letter-spacing:-1px;color:#ffd65c;min-height:14px;margin-top:2px}
+.master-stars .off{color:#26374f}
+.crown{font-size:13px;margin-left:3px}
+.crown.gold{filter:drop-shadow(0 0 5px #ffd75e)}
+.mission-group-title{font-size:11px;font-weight:900;color:#a9bdd6;margin:10px 0 6px}
+.weekly-title{margin-top:13px}
+.mission-list{display:grid;gap:6px}
+.mission-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;align-items:center;background:#091526;border:1px solid rgba(255,255,255,.065);border-radius:13px;padding:8px 9px}
+.mission-name{font-size:11px;font-weight:850}.mission-sub{font-size:9px;color:#8092aa;margin-top:2px}
+.mission-mini{height:5px;background:#040b14;border-radius:99px;overflow:hidden;margin-top:5px}.mission-mini i{display:block;height:100%;background:linear-gradient(90deg,#4f8cff,#56e39f);border-radius:99px}
+.mission-claim{border:0;border-radius:10px;padding:7px 9px;background:#315fb5;color:#fff;font-size:10px;font-weight:900;white-space:nowrap}
+.mission-claim:disabled{opacity:.38}
+.passport-progress i{background:linear-gradient(90deg,#4f8cff,#54d7ff,#ffd75e)}
+.milestone-row{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0}
+.milestone{font-size:9px;padding:5px 7px;border-radius:999px;background:#091526;color:#768ba6;border:1px solid rgba(255,255,255,.06)}
+.milestone.done{color:#fff1a3;border-color:rgba(255,216,91,.38);background:rgba(255,215,94,.09)}
+.passport-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;max-height:190px;overflow:auto}
+.stamp{min-height:45px;padding:5px 3px;border-radius:10px;background:#081322;border:1px dashed rgba(255,255,255,.07);text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.stamp b{font-size:9px}.stamp span{font-size:8px;color:#61748e;margin-top:2px}
+.stamp.done{border-style:solid;border-color:rgba(84,215,255,.25);background:rgba(43,92,125,.13)}
+.stamp.done b{color:#bcefff}.stamp.done::before{content:"✓";font-weight:1000;color:#57e3a0;font-size:11px}
+.shiny-hunt-number{display:flex;align-items:end;gap:5px;margin-top:9px}.shiny-hunt-number b{font-size:28px;color:#ffe17d}.shiny-hunt-number span{font-size:10px;color:#8495aa;margin-bottom:5px}
+.shiny-progress i{background:linear-gradient(90deg,#6de1ff,#be8cff,#ff8bd3,#ffe276)}
+.boss-panel{margin-top:12px;padding:12px;border-radius:18px;background:linear-gradient(145deg,rgba(89,43,18,.24),rgba(39,18,63,.2));border:1px solid rgba(255,170,78,.18)}
+.boss-head{display:flex;justify-content:space-between;gap:10px;align-items:center;text-align:left;font-size:12px}.boss-head b:last-child{font-size:17px;color:#ffcb71}
+.boss-gauge{height:12px}.boss-gauge i{background:linear-gradient(90deg,#ff944d,#ff4c5c,#b968ff)}
+.boss-actions{display:flex;gap:7px;margin-top:9px;justify-content:center;flex-wrap:wrap}.boss-btn{background:linear-gradient(90deg,#a63c27,#7d2f61)}.ticket-btn{background:#6f551e}
+.egg.boss{
+  background:
+    radial-gradient(circle at 38% 30%,#ffcb67 0 7%,transparent 8%),
+    radial-gradient(circle at 68% 42%,#b65cff 0 6%,transparent 7%),
+    radial-gradient(circle at 50% 65%,#ff5d65 0 7%,transparent 8%),
+    linear-gradient(145deg,#24122d,#5e2535 50%,#171423);
+  border-color:#ffaf55;box-shadow:0 0 28px rgba(255,99,74,.36),0 0 60px rgba(167,72,255,.2),inset 0 0 30px rgba(255,190,73,.16);
+  animation:bossEggPulse .55s ease-in-out infinite alternate
+}
+@keyframes bossEggPulse{from{transform:scale(.99)}to{transform:scale(1.025);filter:brightness(1.12)}}
+.result-card.boss-reward{border-color:rgba(255,166,65,.5);box-shadow:0 0 0 2px rgba(255,142,58,.12),0 16px 40px rgba(0,0,0,.3)}
+.badge.boss-badge{background:linear-gradient(90deg,#b63a32,#7d46bd);color:#fff}
+@media(max-width:650px){
+  .master-summary{grid-template-columns:repeat(3,1fr)}
+  .passport-grid{grid-template-columns:repeat(5,1fr)}
+}
+
+
+.generation-row{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0 2px}
+.generation-row span{font-size:10px;color:#94a6bd;background:#091526;border:1px solid rgba(255,255,255,.065);border-radius:999px;padding:5px 8px}
+.generation-row b{color:#d8e7f7}
+.johto-trophy{background:linear-gradient(90deg,rgba(76,191,113,.15),rgba(89,184,232,.14));border-color:rgba(91,219,142,.32)}
+.national-trophy{background:linear-gradient(90deg,rgba(255,211,77,.19),rgba(126,91,224,.17));border-color:rgba(255,211,77,.38)}
+.special-encounter.johtobeast{
+  background:radial-gradient(circle at center,rgba(85,206,165,.25),transparent 30%),rgba(3,15,18,.9)
+}
+.special-encounter.johtobeast .encounter-title{color:#9bf2cf}
+.special-encounter.johtobeast .ring{border-color:#77e4bd;box-shadow:0 0 48px rgba(82,222,174,.62),inset 0 0 34px rgba(80,210,170,.25)}
+.special-encounter.lugia{
+  background:radial-gradient(circle at center,rgba(120,190,255,.28),transparent 30%),rgba(3,9,22,.92)
+}
+.special-encounter.lugia .encounter-title{color:#b8dcff}
+.special-encounter.lugia .ring{border-color:#93c7ff;box-shadow:0 0 52px rgba(110,180,255,.65),inset 0 0 34px rgba(160,210,255,.24)}
+.special-encounter.hooh{
+  background:radial-gradient(circle at center,rgba(255,192,65,.34),transparent 30%),rgba(22,8,2,.92)
+}
+.special-encounter.hooh .encounter-title{color:#ffe18a}
+.special-encounter.hooh .ring{border-color:#ffca58;box-shadow:0 0 52px rgba(255,172,53,.7),inset 0 0 34px rgba(255,210,90,.28)}
+.special-encounter.celebi{
+  background:radial-gradient(circle at center,rgba(114,238,156,.32),transparent 28%),rgba(4,18,10,.91)
+}
+.special-encounter.celebi .encounter-title{color:#b8ffd0}
+.special-encounter.celebi .ring{border-color:#83eaa8;box-shadow:0 0 50px rgba(101,229,148,.64),inset 0 0 34px rgba(101,229,148,.24)}
+
+
+/* ===== V5.1 Shiny Hunt Assist ===== */
+.shiny-assist-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}
+.shiny-assist-card,.shiny-toolbox{background:#091526;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:10px}
+.shiny-assist-head{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:11px}
+.shiny-assist-head span{color:#ffe27d;font-weight:900}
+.shiny-assist-note{font-size:9px;color:#8295ad;line-height:1.45;margin-top:5px}
+.pity-mini{margin-top:7px;height:6px}
+.pity-mini i{background:linear-gradient(90deg,#7dd9ff,#bf8fff,#ff87cb,#ffe071)}
+.shiny-toolbox{margin-top:8px}
+.shiny-tool-title{font-size:11px;font-weight:900;margin-bottom:7px}
+.shiny-tool-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px}
+.shiny-select{width:100%;min-width:0;background:#07101d;color:#eaf3ff;border:1px solid rgba(255,255,255,.09);border-radius:11px;padding:9px 10px;outline:none;font-size:11px}
+.shiny-action{background:linear-gradient(90deg,#7652c7,#d457aa)}
+.radar-action{background:linear-gradient(90deg,#2763a8,#2e9c9b)}
+.shiny-action:disabled,.radar-action:disabled{opacity:.4}
+@media(max-width:520px){
+  .shiny-assist-grid{grid-template-columns:1fr}
+  .shiny-tool-row{grid-template-columns:1fr}
+}
+
+
+/* Original-resolution world artwork. Image files are never downsampled. */
+.variant-hd-wrap{position:relative;overflow:hidden;background:#fff;border-radius:12px;isolation:isolate;box-shadow:0 2px 10px rgba(0,0,0,.12)}
+.variant-hd-wrap.large{width:200px;height:200px;border-radius:18px}
+.variant-hd-wrap .variant-hd-img{position:absolute;display:block;max-width:none;max-height:none;object-fit:fill;image-rendering:auto;filter:none;margin:0;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="logo">🥚 포켓몬 알 클리커 <small>V5.3 HD · 월드 피카츄 화질 최적화</small></div>
+    <div class="statrow">
+      <div class="stat">📘 전국도감 <b id="dexCount">0</b>/<span id="dexTotal">281</span></div>
+      <div class="stat">✨ 이로치 <b id="shinyCount">0</b></div>
+      <div class="stat">🍬 사탕 <b id="candy">0</b></div>
+      <div class="stat">🥚 부화 <b id="hatchCount">0</b></div>
+      <div class="stat">🎟️ 티켓 <b id="ticketCount">0</b></div>
+      <div class="stat">💎 조각 <b id="shardCount">0</b></div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <section class="panel game">
+      <div id="flash" class="flash"></div><div id="sparkles" class="sparkles"></div>
+      <div class="stage">
+        <div id="eggInfo" class="egg-info">알 준비 중…</div>
+        <div id="egg" class="egg normal" aria-label="알">
+          <svg class="crack-svg" viewBox="0 0 120 160" fill="none">
+            <path d="M62 7 L49 38 L68 55 L50 82 L70 101 L54 151" stroke="#26364a" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M50 82 L27 93 L16 119 M68 55 L91 44 L103 22 M70 101 L94 116 L104 143" stroke="#26364a" stroke-width="5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="progress"><div id="progressBar"></div></div>
+        <div class="tapline" id="tapline">알을 터치하세요.</div>
+      </div>
+
+      <div class="result" id="result"><div style="color:#9fb0c6;font-size:13px">알을 깨면 포켓몬이 나타납니다.</div></div>
+      <div id="trophy" class="trophy">🏆 관동+월드 181종 완성! 관동 마스터 콘텐츠가 해금되었습니다.</div>
+<div id="johtoTrophy" class="trophy johto-trophy">🌿 성도도감 100종 완성! 사탕 +1000 · 황금 알 티켓 +3</div>
+<div id="nationalTrophy" class="trophy national-trophy">👑 전국도감 281종 완성! 전국도감 마스터!</div>
+
+      <div id="bossPanel" class="boss-panel">
+        <div class="boss-head">
+          <div>
+            <b>🔥 전설의 거대 알</b>
+            <div class="minor" id="bossStatus">도감 완성 후 해금됩니다.</div>
+          </div>
+          <b id="bossGaugeText">0%</b>
+        </div>
+        <div class="boss-gauge"><i id="bossGaugeBar"></i></div>
+        <div class="boss-actions">
+          <button id="bossBtn" class="btn boss-btn" disabled>보스 알 도전</button>
+          <button id="goldTicketBtn" class="btn ticket-btn">🎟️ 황금 알 티켓 사용</button>
+        </div>
+      </div>
+
+
+      <div class="actionrow">
+        <button id="nextBtn" class="btn primary">다음 알</button>
+        <button id="soundBtn" class="btn">효과음 ON</button>
+        <button id="resetBtn" class="btn danger">저장 초기화</button>
+      </div>
+      <div class="foot">개인용 팬 프로토타입 · 캐릭터/명칭의 권리는 각 권리자에게 있습니다.</div>
+    </section>
+
+    <div class="right">
+      <section class="panel shop">
+        <div class="section-title"><span>🛒 사탕 상점</span><span class="minor">중복 포켓몬을 사탕으로 바꿔 강화</span></div>
+        <div class="shop-grid">
+          <div class="upgrade">
+            <div class="u-title">🔨 알 깨기 강화</div>
+            <div class="u-desc">필요 터치 수를 줄입니다. 최소 3회.</div>
+            <div class="u-lv" id="tapLv"></div>
+            <button id="buyTap"></button>
+          </div>
+          <div class="upgrade">
+            <div class="u-title">🍀 좋은 알 부적</div>
+            <div class="u-desc">황금/무지개 알 등장 확률을 높입니다.</div>
+            <div class="u-lv" id="eggLv"></div>
+            <button id="buyEgg"></button>
+          </div>
+          <div class="upgrade">
+            <div class="u-title">✨ 반짝 부적</div>
+            <div class="u-desc">이로치 등장 확률을 높입니다.</div>
+            <div class="u-lv" id="shinyLv"></div>
+            <button id="buyShiny"></button>
+          </div>
+        </div>
+      </section>
+
+
+      <section class="panel endgame-panel">
+        <div class="section-title"><span>🏆 관동 마스터</span><span class="minor" id="trainerTitle">트레이너</span></div>
+        <div id="masterLock" class="endgame-lock">확장 도감 181종을 완성하면 해금됩니다.</div>
+        <div id="masterContent">
+          <div class="master-summary">
+            <div class="end-stat"><b id="masterStars">0</b><span>★ / <span id="masterStarTotal">1405</span></span><small>마스터 별</small></div>
+            <div class="end-stat"><b id="masterCrowns">0</b><span>👑 / <span id="masterCrownTotal">281</span></span><small>★5 포켓몬</small></div>
+            <div class="end-stat"><b id="goldCrowns">0</b><span>🌟</span><small>황금 왕관</small></div>
+          </div>
+          <div class="mini-progress"><i id="masterProgress"></i></div>
+          <div class="end-note">1 / 3 / 10 / 25 / 50마리 획득 시 ★1~★5. ★5 + 이로치면 황금 왕관입니다.</div>
+        </div>
+      </section>
+
+      <section class="panel mission-panel">
+        <div class="section-title"><span>📋 미션</span><span class="minor">매일 / 매주 갱신</span></div>
+        <div id="missionLock" class="endgame-lock">관동 마스터 해금 후 이용할 수 있습니다.</div>
+        <div id="missionContent">
+          <div class="mission-group-title">오늘의 미션</div>
+          <div id="dailyMissions" class="mission-list"></div>
+          <div class="mission-group-title weekly-title">주간 미션</div>
+          <div id="weeklyMissions" class="mission-list"></div>
+        </div>
+      </section>
+
+      <section class="panel passport-panel">
+        <div class="section-title"><span>🌍 월드 피카츄 여권</span><span class="minor" id="passportCount">0/51</span></div>
+        <div class="passport-progress"><i id="passportBar"></i></div>
+        <div id="passportMilestones" class="milestone-row"></div>
+        <div id="passportGrid" class="passport-grid"></div>
+      </section>
+
+      <section class="panel shiny-hunt-panel">
+        <div class="section-title"><span>✨ 이로치 헌팅 도감</span><span class="minor" id="shinyDexCount">0/281</span></div>
+        <div id="shinyHuntLock" class="endgame-lock">관동 마스터 해금 후 본격적인 이로치 헌팅이 열립니다.</div>
+        <div id="shinyHuntContent">
+          <div class="shiny-hunt-number"><b id="shinyHuntPercent">0.0%</b><span>완성</span></div>
+          <div class="mini-progress shiny-progress"><i id="shinyHuntBar"></i></div>
+          <div id="shinyMilestones" class="milestone-row"></div>
+
+          <div class="shiny-assist-grid">
+            <div class="shiny-assist-card">
+              <div class="shiny-assist-head"><b>🎯 이로치 천장</b><span id="pityText">0/50</span></div>
+              <div class="mission-mini pity-mini"><i id="pityBar"></i></div>
+              <div class="shiny-assist-note" id="pityChanceText">현재 확률 계산 중…</div>
+            </div>
+            <div class="shiny-assist-card">
+              <div class="shiny-assist-head"><b>💎 반짝조각</b><span><b id="shardPanelCount">0</b>/100</span></div>
+              <div class="shiny-assist-note">중복 이로치 획득 시 10~25개. 100개로 원하는 보유 포켓몬의 이로치를 해금할 수 있습니다.</div>
+            </div>
+          </div>
+
+          <div class="shiny-toolbox">
+            <div class="shiny-tool-title">💎 이로치 제작</div>
+            <div class="shiny-tool-row">
+              <select id="shinyCraftSelect" class="shiny-select"></select>
+              <button id="craftShinyBtn" class="btn shiny-action">💎 100 제작</button>
+            </div>
+            <div class="shiny-assist-note">이미 보유했지만 아직 이로치가 없는 포켓몬만 선택할 수 있습니다.</div>
+          </div>
+
+          <div class="shiny-toolbox">
+            <div class="shiny-tool-title">📡 이로치 레이더 <span id="radarLockLabel" class="minor"></span></div>
+            <div class="shiny-tool-row">
+              <select id="shinyRadarSelect" class="shiny-select"></select>
+              <button id="setRadarBtn" class="btn radar-action">목표 설정</button>
+            </div>
+            <div class="shiny-assist-note" id="radarStatus">전국도감 281종 완성 후 사용 가능 · 이로치 등장 시 30% 확률로 목표 포켓몬을 추적합니다.</div>
+          </div>
+
+          <div class="end-note">25회 연속 실패부터 이로치 확률이 매번 +1%p 상승하고, 50회 실패 시 다음 부화는 확정입니다. 이로치가 떴는데 해당 포켓몬이 이미 이로치라면 70% 확률로 같은 희귀도의 미등록 이로치를 우선 선택합니다.</div>
+        </div>
+      </section>
+
+      <section class="panel dex">
+        <div class="section-title"><span>📘 전국도감</span><span class="minor" id="completion">0.0%</span></div>
+        <div class="generation-row"><span>관동+월드 <b id="kantoCount">0</b>/181</span><span>성도 <b id="johtoCount">0</b>/100</span></div>
+        <div class="dex-tools">
+          <input id="search" class="search" placeholder="번호 / 한글 / 영어 이름 검색">
+          <div class="filters">
+            <button class="filter active" data-f="all">전체</button>
+            <button class="filter" data-f="owned">획득</button>
+            <button class="filter" data-f="missing">미획득</button>
+            <button class="filter" data-f="shiny">이로치</button>
+            <button class="filter" data-f="kanto">관동</button>
+            <button class="filter" data-f="johto">성도</button>
+            <button class="filter" data-f="pikachu">피카츄</button>
+            <button class="filter" data-f="master">👑 마스터</button>
+          </div>
+        </div>
+        <div id="dexGrid" class="dex-grid"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<div id="specialEncounter" class="special-encounter">
+  <div id="worldConfetti" class="world-confetti"></div>
+  <div class="ring r1"></div>
+  <div class="ring r2"></div>
+  <div class="ring r3"></div>
+  <div class="beam" style="transform:rotate(0deg)"></div>
+  <div class="beam" style="transform:rotate(45deg)"></div>
+  <div class="beam" style="transform:rotate(90deg)"></div>
+  <div class="beam" style="transform:rotate(135deg)"></div>
+  <div class="encounter-text">
+    <div id="encounterTitle" class="encounter-title"></div>
+    <div id="encounterSub" class="encounter-sub"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const POKEMON = [{"id": 1, "en": "Bulbasaur", "ko": "이상해씨", "rarity": "Uncommon"}, {"id": 2, "en": "Ivysaur", "ko": "이상해풀", "rarity": "Rare"}, {"id": 3, "en": "Venusaur", "ko": "이상해꽃", "rarity": "Epic"}, {"id": 4, "en": "Charmander", "ko": "파이리", "rarity": "Uncommon"}, {"id": 5, "en": "Charmeleon", "ko": "리자드", "rarity": "Rare"}, {"id": 6, "en": "Charizard", "ko": "리자몽", "rarity": "Epic"}, {"id": 7, "en": "Squirtle", "ko": "꼬부기", "rarity": "Uncommon"}, {"id": 8, "en": "Wartortle", "ko": "어니부기", "rarity": "Rare"}, {"id": 9, "en": "Blastoise", "ko": "거북왕", "rarity": "Epic"}, {"id": 10, "en": "Caterpie", "ko": "캐터피", "rarity": "Common"}, {"id": 11, "en": "Metapod", "ko": "단데기", "rarity": "Common"}, {"id": 12, "en": "Butterfree", "ko": "버터플", "rarity": "Uncommon"}, {"id": 13, "en": "Weedle", "ko": "뿔충이", "rarity": "Common"}, {"id": 14, "en": "Kakuna", "ko": "딱충이", "rarity": "Common"}, {"id": 15, "en": "Beedrill", "ko": "독침붕", "rarity": "Uncommon"}, {"id": 16, "en": "Pidgey", "ko": "구구", "rarity": "Common"}, {"id": 17, "en": "Pidgeotto", "ko": "피죤", "rarity": "Uncommon"}, {"id": 18, "en": "Pidgeot", "ko": "피죤투", "rarity": "Rare"}, {"id": 19, "en": "Rattata", "ko": "꼬렛", "rarity": "Common"}, {"id": 20, "en": "Raticate", "ko": "레트라", "rarity": "Uncommon"}, {"id": 21, "en": "Spearow", "ko": "깨비참", "rarity": "Uncommon"}, {"id": 22, "en": "Fearow", "ko": "깨비드릴조", "rarity": "Rare"}, {"id": 23, "en": "Ekans", "ko": "아보", "rarity": "Uncommon"}, {"id": 24, "en": "Arbok", "ko": "아보크", "rarity": "Rare"}, {"id": 25, "en": "Pikachu", "ko": "피카츄", "rarity": "Uncommon"}, {"id": 26, "en": "Raichu", "ko": "라이츄", "rarity": "Rare"}, {"id": 27, "en": "Sandshrew", "ko": "모래두지", "rarity": "Uncommon"}, {"id": 28, "en": "Sandslash", "ko": "고지", "rarity": "Rare"}, {"id": 29, "en": "Nidoran♀", "ko": "니드런♀", "rarity": "Uncommon"}, {"id": 30, "en": "Nidorina", "ko": "니드리나", "rarity": "Rare"}, {"id": 31, "en": "Nidoqueen", "ko": "니드퀸", "rarity": "Epic"}, {"id": 32, "en": "Nidoran♂", "ko": "니드런♂", "rarity": "Uncommon"}, {"id": 33, "en": "Nidorino", "ko": "니드리노", "rarity": "Rare"}, {"id": 34, "en": "Nidoking", "ko": "니드킹", "rarity": "Epic"}, {"id": 35, "en": "Clefairy", "ko": "삐삐", "rarity": "Uncommon"}, {"id": 36, "en": "Clefable", "ko": "픽시", "rarity": "Rare"}, {"id": 37, "en": "Vulpix", "ko": "식스테일", "rarity": "Uncommon"}, {"id": 38, "en": "Ninetales", "ko": "나인테일", "rarity": "Epic"}, {"id": 39, "en": "Jigglypuff", "ko": "푸린", "rarity": "Uncommon"}, {"id": 40, "en": "Wigglytuff", "ko": "푸크린", "rarity": "Rare"}, {"id": 41, "en": "Zubat", "ko": "주뱃", "rarity": "Uncommon"}, {"id": 42, "en": "Golbat", "ko": "골뱃", "rarity": "Rare"}, {"id": 43, "en": "Oddish", "ko": "뚜벅쵸", "rarity": "Common"}, {"id": 44, "en": "Gloom", "ko": "냄새꼬", "rarity": "Uncommon"}, {"id": 45, "en": "Vileplume", "ko": "라플레시아", "rarity": "Rare"}, {"id": 46, "en": "Paras", "ko": "파라스", "rarity": "Uncommon"}, {"id": 47, "en": "Parasect", "ko": "파라섹트", "rarity": "Rare"}, {"id": 48, "en": "Venonat", "ko": "콘팡", "rarity": "Uncommon"}, {"id": 49, "en": "Venomoth", "ko": "도나리", "rarity": "Rare"}, {"id": 50, "en": "Diglett", "ko": "디그다", "rarity": "Uncommon"}, {"id": 51, "en": "Dugtrio", "ko": "닥트리오", "rarity": "Rare"}, {"id": 52, "en": "Meowth", "ko": "나옹", "rarity": "Uncommon"}, {"id": 53, "en": "Persian", "ko": "페르시온", "rarity": "Rare"}, {"id": 54, "en": "Psyduck", "ko": "고라파덕", "rarity": "Uncommon"}, {"id": 55, "en": "Golduck", "ko": "골덕", "rarity": "Rare"}, {"id": 56, "en": "Mankey", "ko": "망키", "rarity": "Uncommon"}, {"id": 57, "en": "Primeape", "ko": "성원숭", "rarity": "Rare"}, {"id": 58, "en": "Growlithe", "ko": "가디", "rarity": "Uncommon"}, {"id": 59, "en": "Arcanine", "ko": "윈디", "rarity": "Epic"}, {"id": 60, "en": "Poliwag", "ko": "발챙이", "rarity": "Uncommon"}, {"id": 61, "en": "Poliwhirl", "ko": "슈륙챙이", "rarity": "Uncommon"}, {"id": 62, "en": "Poliwrath", "ko": "강챙이", "rarity": "Rare"}, {"id": 63, "en": "Abra", "ko": "캐이시", "rarity": "Uncommon"}, {"id": 64, "en": "Kadabra", "ko": "윤겔라", "rarity": "Rare"}, {"id": 65, "en": "Alakazam", "ko": "후딘", "rarity": "Epic"}, {"id": 66, "en": "Machop", "ko": "알통몬", "rarity": "Uncommon"}, {"id": 67, "en": "Machoke", "ko": "근육몬", "rarity": "Rare"}, {"id": 68, "en": "Machamp", "ko": "괴력몬", "rarity": "Epic"}, {"id": 69, "en": "Bellsprout", "ko": "모다피", "rarity": "Uncommon"}, {"id": 70, "en": "Weepinbell", "ko": "우츠동", "rarity": "Uncommon"}, {"id": 71, "en": "Victreebel", "ko": "우츠보트", "rarity": "Rare"}, {"id": 72, "en": "Tentacool", "ko": "왕눈해", "rarity": "Uncommon"}, {"id": 73, "en": "Tentacruel", "ko": "독파리", "rarity": "Rare"}, {"id": 74, "en": "Geodude", "ko": "꼬마돌", "rarity": "Uncommon"}, {"id": 75, "en": "Graveler", "ko": "데구리", "rarity": "Rare"}, {"id": 76, "en": "Golem", "ko": "딱구리", "rarity": "Epic"}, {"id": 77, "en": "Ponyta", "ko": "포니타", "rarity": "Uncommon"}, {"id": 78, "en": "Rapidash", "ko": "날쌩마", "rarity": "Rare"}, {"id": 79, "en": "Slowpoke", "ko": "야돈", "rarity": "Uncommon"}, {"id": 80, "en": "Slowbro", "ko": "야도란", "rarity": "Rare"}, {"id": 81, "en": "Magnemite", "ko": "코일", "rarity": "Uncommon"}, {"id": 82, "en": "Magneton", "ko": "레어코일", "rarity": "Rare"}, {"id": 83, "en": "Farfetch'd", "ko": "파오리", "rarity": "Rare"}, {"id": 84, "en": "Doduo", "ko": "두두", "rarity": "Uncommon"}, {"id": 85, "en": "Dodrio", "ko": "두트리오", "rarity": "Rare"}, {"id": 86, "en": "Seel", "ko": "쥬쥬", "rarity": "Uncommon"}, {"id": 87, "en": "Dewgong", "ko": "쥬레곤", "rarity": "Rare"}, {"id": 88, "en": "Grimer", "ko": "질퍽이", "rarity": "Uncommon"}, {"id": 89, "en": "Muk", "ko": "질뻐기", "rarity": "Rare"}, {"id": 90, "en": "Shellder", "ko": "셀러", "rarity": "Uncommon"}, {"id": 91, "en": "Cloyster", "ko": "파르셀", "rarity": "Rare"}, {"id": 92, "en": "Gastly", "ko": "고오스", "rarity": "Uncommon"}, {"id": 93, "en": "Haunter", "ko": "고우스트", "rarity": "Rare"}, {"id": 94, "en": "Gengar", "ko": "팬텀", "rarity": "Epic"}, {"id": 95, "en": "Onix", "ko": "롱스톤", "rarity": "Rare"}, {"id": 96, "en": "Drowzee", "ko": "슬리프", "rarity": "Uncommon"}, {"id": 97, "en": "Hypno", "ko": "슬리퍼", "rarity": "Rare"}, {"id": 98, "en": "Krabby", "ko": "크랩", "rarity": "Uncommon"}, {"id": 99, "en": "Kingler", "ko": "킹크랩", "rarity": "Rare"}, {"id": 100, "en": "Voltorb", "ko": "찌리리공", "rarity": "Uncommon"}, {"id": 101, "en": "Electrode", "ko": "붐볼", "rarity": "Rare"}, {"id": 102, "en": "Exeggcute", "ko": "아라리", "rarity": "Uncommon"}, {"id": 103, "en": "Exeggutor", "ko": "나시", "rarity": "Epic"}, {"id": 104, "en": "Cubone", "ko": "탕구리", "rarity": "Uncommon"}, {"id": 105, "en": "Marowak", "ko": "텅구리", "rarity": "Rare"}, {"id": 106, "en": "Hitmonlee", "ko": "시라소몬", "rarity": "Rare"}, {"id": 107, "en": "Hitmonchan", "ko": "홍수몬", "rarity": "Rare"}, {"id": 108, "en": "Lickitung", "ko": "내루미", "rarity": "Uncommon"}, {"id": 109, "en": "Koffing", "ko": "또가스", "rarity": "Uncommon"}, {"id": 110, "en": "Weezing", "ko": "또도가스", "rarity": "Rare"}, {"id": 111, "en": "Rhyhorn", "ko": "뿔카노", "rarity": "Uncommon"}, {"id": 112, "en": "Rhydon", "ko": "코뿌리", "rarity": "Epic"}, {"id": 113, "en": "Chansey", "ko": "럭키", "rarity": "Rare"}, {"id": 114, "en": "Tangela", "ko": "덩쿠리", "rarity": "Uncommon"}, {"id": 115, "en": "Kangaskhan", "ko": "캥카", "rarity": "Rare"}, {"id": 116, "en": "Horsea", "ko": "쏘드라", "rarity": "Uncommon"}, {"id": 117, "en": "Seadra", "ko": "시드라", "rarity": "Rare"}, {"id": 118, "en": "Goldeen", "ko": "콘치", "rarity": "Uncommon"}, {"id": 119, "en": "Seaking", "ko": "왕콘치", "rarity": "Rare"}, {"id": 120, "en": "Staryu", "ko": "별가사리", "rarity": "Uncommon"}, {"id": 121, "en": "Starmie", "ko": "아쿠스타", "rarity": "Epic"}, {"id": 122, "en": "Mr. Mime", "ko": "마임맨", "rarity": "Rare"}, {"id": 123, "en": "Scyther", "ko": "스라크", "rarity": "Epic"}, {"id": 124, "en": "Jynx", "ko": "루주라", "rarity": "Rare"}, {"id": 125, "en": "Electabuzz", "ko": "에레브", "rarity": "Epic"}, {"id": 126, "en": "Magmar", "ko": "마그마", "rarity": "Epic"}, {"id": 127, "en": "Pinsir", "ko": "쁘사이저", "rarity": "Epic"}, {"id": 128, "en": "Tauros", "ko": "켄타로스", "rarity": "Rare"}, {"id": 129, "en": "Magikarp", "ko": "잉어킹", "rarity": "Uncommon"}, {"id": 130, "en": "Gyarados", "ko": "갸라도스", "rarity": "Epic"}, {"id": 131, "en": "Lapras", "ko": "라프라스", "rarity": "Epic"}, {"id": 132, "en": "Ditto", "ko": "메타몽", "rarity": "Rare"}, {"id": 133, "en": "Eevee", "ko": "이브이", "rarity": "Rare"}, {"id": 134, "en": "Vaporeon", "ko": "샤미드", "rarity": "Epic"}, {"id": 135, "en": "Jolteon", "ko": "쥬피썬더", "rarity": "Epic"}, {"id": 136, "en": "Flareon", "ko": "부스터", "rarity": "Epic"}, {"id": 137, "en": "Porygon", "ko": "폴리곤", "rarity": "Epic"}, {"id": 138, "en": "Omanyte", "ko": "암나이트", "rarity": "Rare"}, {"id": 139, "en": "Omastar", "ko": "암스타", "rarity": "Epic"}, {"id": 140, "en": "Kabuto", "ko": "투구", "rarity": "Rare"}, {"id": 141, "en": "Kabutops", "ko": "투구푸스", "rarity": "Epic"}, {"id": 142, "en": "Aerodactyl", "ko": "프테라", "rarity": "Epic"}, {"id": 143, "en": "Snorlax", "ko": "잠만보", "rarity": "Epic"}, {"id": 144, "en": "Articuno", "ko": "프리져", "rarity": "Legendary"}, {"id": 145, "en": "Zapdos", "ko": "썬더", "rarity": "Legendary"}, {"id": 146, "en": "Moltres", "ko": "파이어", "rarity": "Legendary"}, {"id": 147, "en": "Dratini", "ko": "미뇽", "rarity": "Rare"}, {"id": 148, "en": "Dragonair", "ko": "신뇽", "rarity": "Rare"}, {"id": 149, "en": "Dragonite", "ko": "망나뇽", "rarity": "Epic"}, {"id": 150, "en": "Mewtwo", "ko": "뮤츠", "rarity": "Legendary"}, {"id": 151, "en": "Mew", "ko": "뮤", "rarity": "Mythical"}];
+const PIKACHU_VARIANTS = [{"id": 1001, "en": "Pikachu (아미고 피카츄)", "ko": "멕시코 아미고 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 1, "country": "멕시코"}, {"id": 1002, "en": "Pikachu (잉카 피카츄)", "ko": "페루 잉카 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 2, "country": "페루"}, {"id": 1003, "en": "Pikachu (메시 피카츄)", "ko": "아르헨티나 메시 피카츄", "rarity": "Epic", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 3, "country": "아르헨티나"}, {"id": 1004, "en": "Pikachu (아씨 피카츄)", "ko": "한국 아씨 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 4, "country": "한국"}, {"id": 1005, "en": "Pikachu (기모노 피카츄)", "ko": "일본 기모노 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 5, "country": "일본"}, {"id": 1006, "en": "Pikachu (치파오 피카츄)", "ko": "중국 치파오 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 6, "country": "중국"}, {"id": 1007, "en": "Pikachu (카우보이 피카츄)", "ko": "미국 카우보이 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 7, "country": "미국"}, {"id": 1008, "en": "Pikachu (하키 피카츄)", "ko": "캐나다 하키 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 8, "country": "캐나다"}, {"id": 1009, "en": "Pikachu (바게트 피카츄)", "ko": "프랑스 바게트 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 9, "country": "프랑스"}, {"id": 1010, "en": "Pikachu (베네치아 카니발 피카츄)", "ko": "이탈리아 베네치아 카니발 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 10, "country": "이탈리아"}, {"id": 1011, "en": "Pikachu (플라멩코 피카츄)", "ko": "스페인 플라멩코 피카츄", "rarity": "Epic", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 11, "country": "스페인"}, {"id": 1012, "en": "Pikachu (쌈바 피카츄)", "ko": "브라질 쌈바 피카츄", "rarity": "Epic", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 12, "country": "브라질"}, {"id": 1013, "en": "Pikachu (튤립 피카츄)", "ko": "네덜란드 튤립 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 13, "country": "네덜란드"}, {"id": 1014, "en": "Pikachu (알프스 피카츄)", "ko": "스위스 알프스 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 14, "country": "스위스"}, {"id": 1015, "en": "Pikachu (근위병 피카츄)", "ko": "영국 근위병 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 15, "country": "영국"}, {"id": 1016, "en": "Pikachu (Viking)", "ko": "바이킹 피카츄", "rarity": "Epic", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 16, "country": "스웨덴"}, {"id": 1017, "en": "Pikachu (노르딕츄)", "ko": "핀란드 노르딕츄", "rarity": "Epic", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 17, "country": "핀란드"}, {"id": 1018, "en": "Pikachu (파라오 피카츄)", "ko": "이집트 파라오 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 18, "country": "이집트"}, {"id": 1019, "en": "Pikachu (사파리 피카츄)", "ko": "케냐 사파리 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 19, "country": "케냐"}, {"id": 1020, "en": "Pikachu (나마스떼 피카츄)", "ko": "인도 나마스떼 피카츄", "rarity": "Epic", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 20, "country": "인도"}, {"id": 1021, "en": "Pikachu (타이 피카츄)", "ko": "태국 타이 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 21, "country": "태국"}, {"id": 1022, "en": "Pikachu (아오자이 피카츄)", "ko": "베트남 아오자이 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 22, "country": "베트남"}, {"id": 1023, "en": "Pikachu (서핑 피카츄)", "ko": "호주 서핑 피카츄", "rarity": "Epic", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 23, "country": "호주"}, {"id": 1024, "en": "Pikachu (Kiwi)", "ko": "키위 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 24, "country": "뉴질랜드"}, {"id": 1025, "en": "Pikachu (아줄레주 피카츄)", "ko": "포르투갈 아줄레주 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 25, "country": "포르투갈"}, {"id": 1026, "en": "Pikachu (감자튀김 피카츄)", "ko": "벨기에 감자튀김 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 26, "country": "벨기에"}, {"id": 1027, "en": "Pikachu (그리스 피카츄)", "ko": "그리스 그리스 피카츄", "rarity": "Epic", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 27, "country": "그리스"}, {"id": 1028, "en": "Pikachu (옥토버페스타 피카츄)", "ko": "독일 옥토버페스타 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 28, "country": "독일"}, {"id": 1029, "en": "Pikachu (Moai)", "ko": "모아이 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 29, "country": "칠레"}, {"id": 1030, "en": "Pikachu (오스만 피카츄)", "ko": "튀르키예 오스만 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 30, "country": "튀르키예"}, {"id": 1031, "en": "Pikachu (도령 피카츄)", "ko": "한국 도령 피카츄", "rarity": "Epic", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 31, "country": "한국"}, {"id": 1032, "en": "Pikachu (셰르파 피카츄)", "ko": "네팔 셰르파 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 32, "country": "네팔"}, {"id": 1033, "en": "Pikachu (마트료시카 피카츄)", "ko": "러시아 마트료시카 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 33, "country": "러시아"}, {"id": 1034, "en": "Pikachu (징키스칸 피카츄)", "ko": "몽골 징키스칸 피카츄", "rarity": "Epic", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 34, "country": "몽골"}, {"id": 1035, "en": "Pikachu (만수르 피카츄)", "ko": "사우디아라비아 만수르 피카츄", "rarity": "Epic", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 35, "country": "사우디아라비아"}, {"id": 1036, "en": "Pikachu (휘바휘바 피카츄)", "ko": "아일랜드 휘바휘바 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 36, "country": "아일랜드"}, {"id": 1037, "en": "Pikachu (젬베 피카츄)", "ko": "가나 젬베 피카츄", "rarity": "Uncommon", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 37, "country": "가나"}, {"id": 1038, "en": "Pikachu (오로라 피카츄)", "ko": "아이슬란드 오로라 피카츄", "rarity": "Epic", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 38, "country": "아이슬란드"}, {"id": 1039, "en": "Pikachu (바틱 피카츄)", "ko": "인도네시아 바틱 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 39, "country": "인도네시아"}, {"id": 1040, "en": "Pikachu (훌라 피카츄)", "ko": "하와이 훌라 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 40, "country": "하와이"}, {"id": 1041, "en": "Pikachu (바이킹 피카츄)", "ko": "노르웨이 바이킹 피카츄", "rarity": "Epic", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 41, "country": "노르웨이"}, {"id": 1042, "en": "Pikachu (커피 피카츄)", "ko": "에티오피아 커피 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 42, "country": "에티오피아"}, {"id": 1043, "en": "Pikachu (드라큘라 피카츄)", "ko": "루마니아 드라큘라 피카츄", "rarity": "Epic", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 43, "country": "루마니아"}, {"id": 1044, "en": "Pikachu (칼로차 피카츄)", "ko": "헝가리 칼로차 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 44, "country": "헝가리"}, {"id": 1045, "en": "Pikachu (장미 피카츄)", "ko": "불가리아 장미 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 45, "country": "불가리아"}, {"id": 1046, "en": "Pikachu (씨씨 피카츄)", "ko": "오스트리아 씨씨 피카츄", "rarity": "Epic", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 46, "country": "오스트리아"}, {"id": 1047, "en": "Pikachu (부탄 피카츄)", "ko": "부탄 부탄 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 47, "country": "부탄"}, {"id": 1048, "en": "Pikachu (마부하이 피카츄)", "ko": "필리핀 마부하이 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 48, "country": "필리핀"}, {"id": 1049, "en": "Pikachu (레게 피카츄)", "ko": "자메이카 레게 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 49, "country": "자메이카"}, {"id": 1050, "en": "Pikachu (바오밥 피카츄)", "ko": "마다가르카르 바오밥 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 50, "country": "마다가르카르"}, {"id": 1051, "en": "Pikachu (폴스카 피카츄)", "ko": "폴란드 폴스카 피카츄", "rarity": "Rare", "spriteId": 25, "family": "pikachu", "isPikachuVariant": true, "variantNo": 51, "country": "폴란드"}];
+const JOHTO_POKEMON = [{"id": 152, "en": "Chikorita", "ko": "치코리타", "rarity": "Uncommon", "gen": 2}, {"id": 153, "en": "Bayleef", "ko": "베이리프", "rarity": "Rare", "gen": 2}, {"id": 154, "en": "Meganium", "ko": "메가니움", "rarity": "Epic", "gen": 2}, {"id": 155, "en": "Cyndaquil", "ko": "브케인", "rarity": "Uncommon", "gen": 2}, {"id": 156, "en": "Quilava", "ko": "마그케인", "rarity": "Rare", "gen": 2}, {"id": 157, "en": "Typhlosion", "ko": "블레이범", "rarity": "Epic", "gen": 2}, {"id": 158, "en": "Totodile", "ko": "리아코", "rarity": "Uncommon", "gen": 2}, {"id": 159, "en": "Croconaw", "ko": "엘리게이", "rarity": "Rare", "gen": 2}, {"id": 160, "en": "Feraligatr", "ko": "장크로다일", "rarity": "Epic", "gen": 2}, {"id": 161, "en": "Sentret", "ko": "꼬리선", "rarity": "Common", "gen": 2}, {"id": 162, "en": "Furret", "ko": "다꼬리", "rarity": "Uncommon", "gen": 2}, {"id": 163, "en": "Hoothoot", "ko": "부우부", "rarity": "Common", "gen": 2}, {"id": 164, "en": "Noctowl", "ko": "야부엉", "rarity": "Rare", "gen": 2}, {"id": 165, "en": "Ledyba", "ko": "레디바", "rarity": "Common", "gen": 2}, {"id": 166, "en": "Ledian", "ko": "레디안", "rarity": "Uncommon", "gen": 2}, {"id": 167, "en": "Spinarak", "ko": "페이검", "rarity": "Common", "gen": 2}, {"id": 168, "en": "Ariados", "ko": "아리아도스", "rarity": "Uncommon", "gen": 2}, {"id": 169, "en": "Crobat", "ko": "크로뱃", "rarity": "Epic", "gen": 2}, {"id": 170, "en": "Chinchou", "ko": "초라기", "rarity": "Uncommon", "gen": 2}, {"id": 171, "en": "Lanturn", "ko": "랜턴", "rarity": "Rare", "gen": 2}, {"id": 172, "en": "Pichu", "ko": "피츄", "rarity": "Rare", "gen": 2}, {"id": 173, "en": "Cleffa", "ko": "삐", "rarity": "Rare", "gen": 2}, {"id": 174, "en": "Igglybuff", "ko": "푸푸린", "rarity": "Rare", "gen": 2}, {"id": 175, "en": "Togepi", "ko": "토게피", "rarity": "Rare", "gen": 2}, {"id": 176, "en": "Togetic", "ko": "토게틱", "rarity": "Rare", "gen": 2}, {"id": 177, "en": "Natu", "ko": "네이티", "rarity": "Uncommon", "gen": 2}, {"id": 178, "en": "Xatu", "ko": "네이티오", "rarity": "Rare", "gen": 2}, {"id": 179, "en": "Mareep", "ko": "메리프", "rarity": "Uncommon", "gen": 2}, {"id": 180, "en": "Flaaffy", "ko": "보송송", "rarity": "Rare", "gen": 2}, {"id": 181, "en": "Ampharos", "ko": "전룡", "rarity": "Epic", "gen": 2}, {"id": 182, "en": "Bellossom", "ko": "아르코", "rarity": "Epic", "gen": 2}, {"id": 183, "en": "Marill", "ko": "마릴", "rarity": "Uncommon", "gen": 2}, {"id": 184, "en": "Azumarill", "ko": "마릴리", "rarity": "Rare", "gen": 2}, {"id": 185, "en": "Sudowoodo", "ko": "꼬지모", "rarity": "Rare", "gen": 2}, {"id": 186, "en": "Politoed", "ko": "왕구리", "rarity": "Epic", "gen": 2}, {"id": 187, "en": "Hoppip", "ko": "통통코", "rarity": "Common", "gen": 2}, {"id": 188, "en": "Skiploom", "ko": "두코", "rarity": "Uncommon", "gen": 2}, {"id": 189, "en": "Jumpluff", "ko": "솜솜코", "rarity": "Rare", "gen": 2}, {"id": 190, "en": "Aipom", "ko": "에이팜", "rarity": "Uncommon", "gen": 2}, {"id": 191, "en": "Sunkern", "ko": "해너츠", "rarity": "Common", "gen": 2}, {"id": 192, "en": "Sunflora", "ko": "해루미", "rarity": "Rare", "gen": 2}, {"id": 193, "en": "Yanma", "ko": "왕자리", "rarity": "Rare", "gen": 2}, {"id": 194, "en": "Wooper", "ko": "우파", "rarity": "Common", "gen": 2}, {"id": 195, "en": "Quagsire", "ko": "누오", "rarity": "Rare", "gen": 2}, {"id": 196, "en": "Espeon", "ko": "에브이", "rarity": "Epic", "gen": 2}, {"id": 197, "en": "Umbreon", "ko": "블래키", "rarity": "Epic", "gen": 2}, {"id": 198, "en": "Murkrow", "ko": "니로우", "rarity": "Rare", "gen": 2}, {"id": 199, "en": "Slowking", "ko": "야도킹", "rarity": "Epic", "gen": 2}, {"id": 200, "en": "Misdreavus", "ko": "무우마", "rarity": "Rare", "gen": 2}, {"id": 201, "en": "Unown", "ko": "안농", "rarity": "Rare", "gen": 2}, {"id": 202, "en": "Wobbuffet", "ko": "마자용", "rarity": "Rare", "gen": 2}, {"id": 203, "en": "Girafarig", "ko": "키링키", "rarity": "Rare", "gen": 2}, {"id": 204, "en": "Pineco", "ko": "피콘", "rarity": "Uncommon", "gen": 2}, {"id": 205, "en": "Forretress", "ko": "쏘콘", "rarity": "Rare", "gen": 2}, {"id": 206, "en": "Dunsparce", "ko": "노고치", "rarity": "Rare", "gen": 2}, {"id": 207, "en": "Gligar", "ko": "글라이거", "rarity": "Rare", "gen": 2}, {"id": 208, "en": "Steelix", "ko": "강철톤", "rarity": "Epic", "gen": 2}, {"id": 209, "en": "Snubbull", "ko": "블루", "rarity": "Uncommon", "gen": 2}, {"id": 210, "en": "Granbull", "ko": "그랑블루", "rarity": "Rare", "gen": 2}, {"id": 211, "en": "Qwilfish", "ko": "침바루", "rarity": "Rare", "gen": 2}, {"id": 212, "en": "Scizor", "ko": "핫삼", "rarity": "Epic", "gen": 2}, {"id": 213, "en": "Shuckle", "ko": "단단지", "rarity": "Rare", "gen": 2}, {"id": 214, "en": "Heracross", "ko": "헤라크로스", "rarity": "Epic", "gen": 2}, {"id": 215, "en": "Sneasel", "ko": "포푸니", "rarity": "Rare", "gen": 2}, {"id": 216, "en": "Teddiursa", "ko": "깜지곰", "rarity": "Uncommon", "gen": 2}, {"id": 217, "en": "Ursaring", "ko": "링곰", "rarity": "Epic", "gen": 2}, {"id": 218, "en": "Slugma", "ko": "마그마그", "rarity": "Common", "gen": 2}, {"id": 219, "en": "Magcargo", "ko": "마그카르고", "rarity": "Rare", "gen": 2}, {"id": 220, "en": "Swinub", "ko": "꾸꾸리", "rarity": "Common", "gen": 2}, {"id": 221, "en": "Piloswine", "ko": "메꾸리", "rarity": "Rare", "gen": 2}, {"id": 222, "en": "Corsola", "ko": "코산호", "rarity": "Rare", "gen": 2}, {"id": 223, "en": "Remoraid", "ko": "총어", "rarity": "Uncommon", "gen": 2}, {"id": 224, "en": "Octillery", "ko": "대포무노", "rarity": "Rare", "gen": 2}, {"id": 225, "en": "Delibird", "ko": "딜리버드", "rarity": "Rare", "gen": 2}, {"id": 226, "en": "Mantine", "ko": "만타인", "rarity": "Rare", "gen": 2}, {"id": 227, "en": "Skarmory", "ko": "무장조", "rarity": "Epic", "gen": 2}, {"id": 228, "en": "Houndour", "ko": "델빌", "rarity": "Uncommon", "gen": 2}, {"id": 229, "en": "Houndoom", "ko": "헬가", "rarity": "Epic", "gen": 2}, {"id": 230, "en": "Kingdra", "ko": "킹드라", "rarity": "Epic", "gen": 2}, {"id": 231, "en": "Phanpy", "ko": "코코리", "rarity": "Uncommon", "gen": 2}, {"id": 232, "en": "Donphan", "ko": "코리갑", "rarity": "Epic", "gen": 2}, {"id": 233, "en": "Porygon2", "ko": "폴리곤2", "rarity": "Epic", "gen": 2}, {"id": 234, "en": "Stantler", "ko": "노라키", "rarity": "Rare", "gen": 2}, {"id": 235, "en": "Smeargle", "ko": "루브도", "rarity": "Rare", "gen": 2}, {"id": 236, "en": "Tyrogue", "ko": "배루키", "rarity": "Rare", "gen": 2}, {"id": 237, "en": "Hitmontop", "ko": "카포에라", "rarity": "Epic", "gen": 2}, {"id": 238, "en": "Smoochum", "ko": "뽀뽀라", "rarity": "Rare", "gen": 2}, {"id": 239, "en": "Elekid", "ko": "에레키드", "rarity": "Rare", "gen": 2}, {"id": 240, "en": "Magby", "ko": "마그비", "rarity": "Rare", "gen": 2}, {"id": 241, "en": "Miltank", "ko": "밀탱크", "rarity": "Epic", "gen": 2}, {"id": 242, "en": "Blissey", "ko": "해피너스", "rarity": "Epic", "gen": 2}, {"id": 243, "en": "Raikou", "ko": "라이코", "rarity": "Legendary", "gen": 2}, {"id": 244, "en": "Entei", "ko": "앤테이", "rarity": "Legendary", "gen": 2}, {"id": 245, "en": "Suicune", "ko": "스이쿤", "rarity": "Legendary", "gen": 2}, {"id": 246, "en": "Larvitar", "ko": "애버라스", "rarity": "Rare", "gen": 2}, {"id": 247, "en": "Pupitar", "ko": "데기라스", "rarity": "Rare", "gen": 2}, {"id": 248, "en": "Tyranitar", "ko": "마기라스", "rarity": "Epic", "gen": 2}, {"id": 249, "en": "Lugia", "ko": "루기아", "rarity": "Legendary", "gen": 2}, {"id": 250, "en": "Ho-Oh", "ko": "칠색조", "rarity": "Legendary", "gen": 2}, {"id": 251, "en": "Celebi", "ko": "세레비", "rarity": "Mythical", "gen": 2}];
+const KANTO_COLLECTION = [...POKEMON, ...PIKACHU_VARIANTS];
+const FULL_POKEMON = [...KANTO_COLLECTION, ...JOHTO_POKEMON];
+const KANTO_MASTER_TOTAL = KANTO_COLLECTION.length;
+const JOHTO_TOTAL = JOHTO_POKEMON.length;
+const TOTAL_DEX = FULL_POKEMON.length;
+const WORLD_PIKA_SHEET="world_pika_sheet.png";
+
+const rarityRank={Common:1,Uncommon:2,Rare:3,Epic:4,Legendary:5,Mythical:6};
+const candyByRarity={Common:1,Uncommon:2,Rare:4,Epic:8,Legendary:20,Mythical:40};
+const baseEggs=[
+ {key:'normal',label:'일반 알',chance:70,clicks:8},
+ {key:'silver',label:'은빛 알',chance:20,clicks:10},
+ {key:'gold',label:'황금 알',chance:8,clicks:12},
+ {key:'rainbow',label:'무지개 알',chance:2,clicks:15}
+];
+const rarityWeights={
+ normal:{Common:52,Uncommon:28,Rare:14,Epic:5,Legendary:.8,Mythical:.2},
+ silver:{Common:35,Uncommon:30,Rare:22,Epic:10,Legendary:2.4,Mythical:.6},
+ gold:{Common:18,Uncommon:25,Rare:30,Epic:20,Legendary:5.5,Mythical:1.5},
+ rainbow:{Common:6,Uncommon:14,Rare:30,Epic:30,Legendary:15,Mythical:5}
+};
+const key='pokeEggV2';
+let filter='all',sound=true,egg=null,nextReady=false,nextReadyTimer=null;
+let bossMode=false,bossTimer=null,bossDeadline=0;
+let state=load();
+
+function fresh(){
+ return {
+   owned:{},shiny:{},hatches:0,dupes:0,candy:0,
+   up:{tap:0,egg:0,shiny:0},completionReward:false,
+   bossGauge:0,bossWins:0,bossMedals:0,goldTickets:0,forceGoldNext:false,
+   passportRewards:{},shinyMilestones:{},titles:{},johtoCompletionReward:false,nationalCompletionReward:false,variantIdMigrationV5:false,
+   shinyPity:0,shinyShards:0,shinyRadarTarget:null,craftedShiny:0,
+   missions:{dailyKey:'',weeklyKey:'',daily:{},weekly:{},dailyClaimed:{},weeklyClaimed:{}}
+ };
+}
+function normalizeState(s){
+ const f=fresh(),n=Object.assign({},f,s||{});
+ n.owned=(s&&s.owned)||{};n.shiny=(s&&s.shiny)||{};
+ n.up=Object.assign({},f.up,(s&&s.up)||{});
+ n.passportRewards=Object.assign({},(s&&s.passportRewards)||{});
+ n.shinyMilestones=Object.assign({},(s&&s.shinyMilestones)||{});
+ n.titles=Object.assign({},(s&&s.titles)||{});
+ n.missions=Object.assign({},f.missions,(s&&s.missions)||{});
+ n.missions.daily=Object.assign({},n.missions.daily||{});
+ n.missions.weekly=Object.assign({},n.missions.weekly||{});
+ n.missions.dailyClaimed=Object.assign({},n.missions.dailyClaimed||{});
+ n.missions.weeklyClaimed=Object.assign({},n.missions.weeklyClaimed||{});
+ n.shinyPity=Math.max(0,Number(n.shinyPity)||0);
+ n.shinyShards=Math.max(0,Number(n.shinyShards)||0);
+ n.shinyRadarTarget=n.shinyRadarTarget==null?null:Number(n.shinyRadarTarget);
+ n.craftedShiny=Math.max(0,Number(n.craftedShiny)||0);
+ if(!n.variantIdMigrationV5){
+   for(let i=0;i<30;i++){
+     const oldId=201+i,newId=1001+i;
+     if(n.owned[oldId]){n.owned[newId]=(n.owned[newId]||0)+n.owned[oldId];delete n.owned[oldId]}
+     if(n.shiny[oldId]){n.shiny[newId]=(n.shiny[newId]||0)+n.shiny[oldId];delete n.shiny[oldId]}
+   }
+   n.variantIdMigrationV5=true;
+ }
+ return n;
+}
+function load(){
+ try{
+   const v2=localStorage.getItem(key);
+   if(v2) return normalizeState(JSON.parse(v2));
+   const old=localStorage.getItem('pokemonEggClicker_v1');
+   if(old){
+      const o=JSON.parse(old),n=fresh();
+      n.owned=o.owned||{};n.hatches=o.hatchCount||0;n.dupes=o.dupeCount||0;
+      return normalizeState(n);
+   }
+ }catch(e){}
+ return fresh();
+}
+function save(){localStorage.setItem(key,JSON.stringify(state))}
+function weighted(items,getW){
+ const total=items.reduce((a,x)=>a+getW(x),0);let r=Math.random()*total;
+ for(const x of items){r-=getW(x);if(r<=0)return x}
+ return items[items.length-1];
+}
+function currentEggPool(){
+ const lv=state.up.egg||0;
+ const boost=Math.min(lv*1.15,8);
+ return baseEggs.map(e=>{
+   let c=e.chance;
+   if(e.key==='gold') c+=boost;
+   if(e.key==='rainbow') c+=boost*.38;
+   if(e.key==='normal') c-=boost*.9;
+   if(e.key==='silver') c-=boost*.48;
+   return {...e,chance:Math.max(.2,c)};
+ });
+}
+function pickEgg(){
+ if(state.forceGoldNext){
+   state.forceGoldNext=false;save();
+   return Math.random()<.22?baseEggs.find(e=>e.key==='rainbow'):baseEggs.find(e=>e.key==='gold');
+ }
+ return weighted(currentEggPool(),x=>x.chance);
+}
+function pickPokemon(eggKey){
+ const w=rarityWeights[eggKey];
+ const rr=weighted(Object.keys(w).map(k=>({k,w:w[k]})),x=>x.w).k;
+ let pool=FULL_POKEMON.filter(p=>p.rarity===rr);
+ if(['Rare','Epic'].includes(rr)){
+   const variants=PIKACHU_VARIANTS.filter(p=>p.rarity===rr);
+   pool=[...pool, ...variants];
+ }
+ return pool[Math.floor(Math.random()*pool.length)];
+}
+function baseShinyChance(){
+ const lv=state.up.shiny||0;
+ const bonus=Math.min(lv,10)*0.0025 + Math.max(0,lv-10)*0.004;
+ return Math.min(1/128 + bonus, .10);
+}
+function shinyChance(){
+ const pity=state.shinyPity||0;
+ if(pity>=50)return 1;
+ const ramp=pity>=25?(pity-24)*.01:0;
+ return Math.min(baseShinyChance()+ramp,.85);
+}
+function shinyShardReward(rarity){
+ return {Common:10,Uncommon:12,Rare:15,Epic:18,Legendary:22,Mythical:25}[rarity]||10;
+}
+function missingShinyPool(rarity=null){
+ return FULL_POKEMON.filter(p=>(!rarity||p.rarity===rarity)&&!state.shiny[p.id]);
+}
+function chooseShinyPokemon(original){
+ // 전국도감 완성 후 레이더 목표를 먼저 추적합니다.
+ if(state.nationalCompletionReward&&state.shinyRadarTarget){
+   const target=FULL_POKEMON.find(p=>p.id===Number(state.shinyRadarTarget));
+   if(target&&state.owned[target.id]&&!state.shiny[target.id]&&Math.random()<.30)return target;
+ }
+ // 원래 나온 포켓몬이 아직 미등록 이로치면 그대로 유지합니다.
+ if(!state.shiny[original.id])return original;
+ // 이미 등록한 이로치일 때 70% 확률로 같은 희귀도의 미등록 이로치를 우선합니다.
+ if(Math.random()<.70){
+   const pool=missingShinyPool(original.rarity);
+   if(pool.length)return pool[Math.floor(Math.random()*pool.length)];
+ }
+ return original;
+}
+function shinyCandidateOptions(){
+ return FULL_POKEMON.filter(p=>state.owned[p.id]&&!state.shiny[p.id])
+   .sort((a,b)=>{
+     if(a.isPikachuVariant&&!b.isPikachuVariant)return 1;
+     if(!a.isPikachuVariant&&b.isPikachuVariant)return -1;
+     return (a.id||0)-(b.id||0);
+   });
+}
+function craftSelectedShiny(){
+ if((state.shinyShards||0)<100){toast('💎 반짝조각이 100개 필요합니다.');return;}
+ const sel=document.getElementById('shinyCraftSelect');
+ const id=Number(sel&&sel.value),p=FULL_POKEMON.find(x=>x.id===id);
+ if(!p||!state.owned[p.id]||state.shiny[p.id]){toast('제작할 포켓몬을 선택해주세요.');return;}
+ state.shinyShards-=100;
+ state.shiny[p.id]=(state.shiny[p.id]||0)+1;
+ state.craftedShiny=(state.craftedShiny||0)+1;
+ checkShinyMilestones();save();updateAll();
+ toast(`💎 ${p.ko} 이로치 해금!`);
+}
+function setShinyRadar(){
+ if(!state.nationalCompletionReward){toast('전국도감 281종 완성 후 레이더가 해금됩니다.');return;}
+ const sel=document.getElementById('shinyRadarSelect');
+ const id=Number(sel&&sel.value);
+ if(!id){state.shinyRadarTarget=null;save();updateAll();toast('📡 이로치 레이더를 해제했습니다.');return;}
+ const p=FULL_POKEMON.find(x=>x.id===id);
+ if(!p||!state.owned[p.id]||state.shiny[p.id]){toast('아직 이로치가 없는 보유 포켓몬을 선택해주세요.');return;}
+ state.shinyRadarTarget=p.id;save();updateAll();toast(`📡 레이더 목표: ${p.ko}`);
+}
+function sprite(pOrId,isShiny){
+ const ref=typeof pOrId==='object'?(pOrId.spriteId||pOrId.id):pOrId;
+ const folder=isShiny?'shiny/':'';
+ return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${folder}${ref}.png`;
+}
+function isPikachuFamily(p){ return p && (p.id===25 || p.family==='pikachu' || p.isPikachuVariant); }
+function dexNo(p){
+ return p.isPikachuVariant?`W${String(p.variantNo).padStart(2,'0')}`:String(p.id).padStart(3,'0');
+}
+const WORLD_PIKA_HD = {"1004":{"src":"world_hd_1.webp","col":0,"row":0,"cols":3,"rows":2},"1031":{"src":"world_hd_1.webp","col":1,"row":0,"cols":3,"rows":2},"1027":{"src":"world_hd_1.webp","col":2,"row":0,"cols":3,"rows":2},"1028":{"src":"world_hd_1.webp","col":0,"row":1,"cols":3,"rows":2},"1003":{"src":"world_hd_1.webp","col":1,"row":1,"cols":3,"rows":2},"1032":{"src":"world_hd_1.webp","col":2,"row":1,"cols":3,"rows":2},"1013":{"src":"world_hd_2.webp","col":0,"row":0,"cols":3,"rows":2},"1033":{"src":"world_hd_2.webp","col":1,"row":0,"cols":3,"rows":2},"1023":{"src":"world_hd_2.webp","col":2,"row":0,"cols":3,"rows":2},"1015":{"src":"world_hd_2.webp","col":0,"row":1,"cols":3,"rows":2},"1034":{"src":"world_hd_2.webp","col":1,"row":1,"cols":3,"rows":2},"1035":{"src":"world_hd_2.webp","col":2,"row":1,"cols":3,"rows":2},"1036":{"src":"world_hd_3.webp","col":0,"row":0,"cols":3,"rows":2},"1037":{"src":"world_hd_3.webp","col":1,"row":0,"cols":3,"rows":2},"1038":{"src":"world_hd_3.webp","col":2,"row":0,"cols":3,"rows":2},"1005":{"src":"world_hd_3.webp","col":0,"row":1,"cols":3,"rows":2},"1001":{"src":"world_hd_3.webp","col":1,"row":1,"cols":3,"rows":2},"1030":{"src":"world_hd_3.webp","col":2,"row":1,"cols":3,"rows":2},"1022":{"src":"world_hd_4.webp","col":0,"row":0,"cols":3,"rows":2},"1006":{"src":"world_hd_4.webp","col":1,"row":0,"cols":3,"rows":2},"1009":{"src":"world_hd_4.webp","col":2,"row":0,"cols":3,"rows":2},"1039":{"src":"world_hd_4.webp","col":0,"row":1,"cols":3,"rows":2},"1011":{"src":"world_hd_4.webp","col":1,"row":1,"cols":3,"rows":2},"1010":{"src":"world_hd_4.webp","col":2,"row":1,"cols":3,"rows":2},"1007":{"src":"world_hd_5.webp","col":0,"row":0,"cols":3,"rows":2},"1014":{"src":"world_hd_5.webp","col":1,"row":0,"cols":3,"rows":2},"1018":{"src":"world_hd_5.webp","col":2,"row":0,"cols":3,"rows":2},"1002":{"src":"world_hd_5.webp","col":0,"row":1,"cols":3,"rows":2},"1012":{"src":"world_hd_5.webp","col":1,"row":1,"cols":3,"rows":2},"1040":{"src":"world_hd_5.webp","col":2,"row":1,"cols":3,"rows":2},"1020":{"src":"world_hd_6.webp","col":0,"row":0,"cols":3,"rows":2},"1008":{"src":"world_hd_6.webp","col":1,"row":0,"cols":3,"rows":2},"1021":{"src":"world_hd_6.webp","col":2,"row":0,"cols":3,"rows":2},"1019":{"src":"world_hd_6.webp","col":0,"row":1,"cols":3,"rows":2},"1041":{"src":"world_hd_6.webp","col":1,"row":1,"cols":3,"rows":2},"1042":{"src":"world_hd_6.webp","col":2,"row":1,"cols":3,"rows":2},"1043":{"src":"world_hd_7.webp","col":0,"row":0,"cols":3,"rows":2},"1025":{"src":"world_hd_7.webp","col":1,"row":0,"cols":3,"rows":2},"1044":{"src":"world_hd_7.webp","col":2,"row":0,"cols":3,"rows":2},"1045":{"src":"world_hd_7.webp","col":0,"row":1,"cols":3,"rows":2},"1046":{"src":"world_hd_7.webp","col":1,"row":1,"cols":3,"rows":2},"1047":{"src":"world_hd_7.webp","col":2,"row":1,"cols":3,"rows":2},"1048":{"src":"world_hd_8.webp","col":0,"row":0,"cols":3,"rows":2},"1049":{"src":"world_hd_8.webp","col":1,"row":0,"cols":3,"rows":2},"1050":{"src":"world_hd_8.webp","col":2,"row":0,"cols":3,"rows":2},"1026":{"src":"world_hd_8.webp","col":0,"row":1,"cols":3,"rows":2},"1017":{"src":"world_hd_8.webp","col":1,"row":1,"cols":3,"rows":2},"1051":{"src":"world_hd_8.webp","col":2,"row":1,"cols":3,"rows":2}};
+function renderPokemonVisual(p,isShiny,small=false){
+ const hd=WORLD_PIKA_HD[p.id];
+ if(p.isPikachuVariant && hd){
+  const size=small?88:200;
+  const bgW=size*hd.cols,bgH=size*hd.rows;
+  const x=-(hd.col*size),y=-(hd.row*size);
+  return `<div class="variant-sprite-wrap variant-hd-wrap ${small?'':'large world-glow'}"><div class="variant-hd-img" role="img" aria-label="${p.ko}" style="width:100%;height:100%;left:0;top:0;background-image:url('${hd.src}');background-repeat:no-repeat;background-size:${bgW}px ${bgH}px;background-position:${x}px ${y}px"></div></div>`;
+ }
+ if(p.isPikachuVariant){
+   const cols=6, cell=128;
+   const n=(p.variantNo||1)-1, col=n%cols, row=Math.floor(n/cols);
+   const rows=Math.ceil(PIKACHU_VARIANTS.length/cols);
+   const size=small?88:150;
+   const scale=size/cell;
+   const bgW=(cols*cell)*scale, bgH=(rows*cell)*scale;
+   const x=-(col*cell*scale), y=-(row*cell*scale);
+   return `<div class="variant-sprite-wrap ${small?'':'large'} ${small?'':'world-glow'}"><div class="variant-sheet-sprite" style="background-image:url('${WORLD_PIKA_SHEET}');background-size:${bgW}px ${bgH}px;background-position:${x}px ${y}px"></div></div>`;
+ }
+ return `<img ${small?'':'class="poke-img"'} src="${sprite(p,isShiny)}" alt="${p.ko}">`;
+}
+function tapReduction(){return Math.min(state.up.tap||0,7)}
+function makeEgg(){
+ if(bossMode)return;
+ nextReady=false;
+ if(nextReadyTimer){clearTimeout(nextReadyTimer);nextReadyTimer=null;}
+ const e=pickEgg();
+ const need=Math.max(3,e.clicks-tapReduction());
+ egg={...e,total:need,left:need,hatched:false};
+ const el=document.getElementById('egg');
+ el.className=`egg ${e.key}`;
+ document.getElementById('result').innerHTML='<div style="color:#9fb0c6;font-size:13px">알을 터치해서 부화시켜 보세요.</div>';
+ renderEgg();
+}
+function renderEgg(){
+ if(!egg)return;
+ const done=egg.total-egg.left,pct=Math.round(done/egg.total*100);
+ const el=document.getElementById('egg');
+ el.classList.remove('crack1','crack2','crack3');
+ if(pct>=30)el.classList.add('crack1');
+ if(pct>=55)el.classList.add('crack2');
+ if(pct>=78)el.classList.add('crack3');
+ document.getElementById('progressBar').style.width=pct+'%';
+ document.getElementById('eggInfo').textContent=`${egg.label} · 좋은 알 부적 Lv.${state.up.egg||0}`;
+ document.getElementById('tapline').textContent=egg.hatched?'포켓몬을 확인해보세요.':(egg.left>0?`${egg.left}번 더 터치하면 부화합니다.`:'부화 중…');
+}
+function tapEgg(){
+ if(bossMode){bossTap();return;}
+ if(!egg)return;
+ if(egg.hatched)return;
+ if(egg.left<=0)return;
+ const el=document.getElementById('egg');
+ el.classList.remove('hit');void el.offsetWidth;el.classList.add('hit');
+ egg.left--;beep(250+Math.random()*110,.035,.018);renderEgg();
+ if(egg.left<=0)setTimeout(hatch,90);
+}
+
+
+function launchWorldConfetti(){
+ const box=document.getElementById('worldConfetti');
+ if(!box)return;
+ box.innerHTML='';
+ const colors=['#ffd861','#65d6ff','#ff71cb','#7df59d','#ffffff'];
+ for(let i=0;i<18;i++){
+   const el=document.createElement('i');
+   const ang=(Math.PI*2/18)*i + (Math.random()*.2);
+   const dist=100 + Math.random()*180;
+   const tx=Math.cos(ang)*dist;
+   const ty=Math.sin(ang)*dist;
+   el.style.setProperty('--tx', `${tx}px`);
+   el.style.setProperty('--ty', `${ty}px`);
+   el.style.setProperty('--rot', `${Math.round(Math.random()*320-160)}deg`);
+   el.style.background=colors[i%colors.length];
+   el.style.animationDelay=`${(Math.random()*0.08).toFixed(2)}s`;
+   el.style.left=`${50 + (Math.random()*10-5)}%`;
+   el.style.top=`${50 + (Math.random()*8-4)}%`;
+   box.appendChild(el);
+ }
+ setTimeout(()=>{box.innerHTML='';},1700);
+}
+
+function playSpecialEncounter(p){
+ const overlay=document.getElementById('specialEncounter');
+ const title=document.getElementById('encounterTitle');
+ const sub=document.getElementById('encounterSub');
+ let mode=null;
+
+ if([144,145,146].includes(p.id)){
+   mode='legendary';
+   title.textContent='전설의 기운이 느껴집니다!';
+   sub.textContent='관동의 전설 포켓몬 등장';
+ }else if(p.id===150){
+   mode='mewtwo';
+   title.textContent='강력한 사이킥 에너지!';
+   sub.textContent='뮤츠가 모습을 드러냅니다';
+ }else if(p.id===151){
+   mode='mew';
+   title.textContent='신비한 기척이 다가옵니다…';
+   sub.textContent='환상의 포켓몬 뮤 등장';
+ }else if([243,244,245].includes(p.id)){
+   mode='johtobeast';
+   title.textContent='성도의 전설이 깨어납니다!';
+   sub.textContent=`${p.ko} 등장`;
+ }else if(p.id===249){
+   mode='lugia';
+   title.textContent='심해에서 거대한 기운이 솟구칩니다!';
+   sub.textContent='루기아 등장';
+ }else if(p.id===250){
+   mode='hooh';
+   title.textContent='무지갯빛 불꽃이 하늘을 뒤덮습니다!';
+   sub.textContent='칠색조 등장';
+ }else if(p.id===251){
+   mode='celebi';
+   title.textContent='숲의 시간이 흔들리기 시작합니다…';
+   sub.textContent='환상의 포켓몬 세레비 등장';
+ }else if(p.isPikachuVariant){
+   mode='worldpikachu';
+   title.textContent='월드 피카츄 등장!';
+   sub.textContent=`${p.country} · ${p.ko}`;
+ }else if(isPikachuFamily(p)){
+   mode='pikachu';
+   title.textContent='찌릿! 전기가 흐릅니다!';
+   sub.textContent=`${p.ko} 등장`;
+ }else if(p.id===6){
+   mode='charizard';
+   title.textContent='뜨거운 불꽃이 치솟습니다!';
+   sub.textContent='리자몽 등장';
+ }else if(p.id===94){
+   mode='gengar';
+   title.textContent='주변이 갑자기 서늘해집니다…';
+   sub.textContent='팬텀 등장';
+ }else if(p.id===133){
+   mode='eevee';
+   title.textContent='사랑스러운 기척이 느껴집니다!';
+   sub.textContent='이브이 등장';
+ }else if(p.id===143){
+   mode='snorlax';
+   title.textContent='쿵… 묵직한 기척입니다!';
+   sub.textContent='잠만보 등장';
+ }else if(p.id===130){
+   mode='gyarados';
+   title.textContent='거센 물결이 몰아칩니다!';
+   sub.textContent='갸라도스 등장';
+ }else{
+   return;
+ }
+
+ overlay.className=`special-encounter ${mode}`;
+ void overlay.offsetWidth;
+ overlay.classList.add('show');
+ document.body.classList.add('special-shake');
+
+ const tones={
+   legendary:[420,620,840],
+   mewtwo:[230,340,510],
+   mew:[720,920,1120],
+   johtobeast:[360,570,830],
+   lugia:[300,520,780],
+   hooh:[480,760,1080],
+   celebi:[650,880,1120],
+   worldpikachu:[540,820,1180],
+   pikachu:[760,980,1240],
+   charizard:[280,420,620],
+   gengar:[190,260,340],
+   eevee:[540,680,820],
+   snorlax:[170,210,250],
+   gyarados:[250,360,520]
+ };
+ const ts=tones[mode]||[420,620,840];
+ if(mode==='worldpikachu') launchWorldConfetti();
+ beep(ts[0],.11,.03);
+ setTimeout(()=>beep(ts[1],.12,.03),140);
+ setTimeout(()=>beep(ts[2],.18,.035),300);
+
+ setTimeout(()=>{
+   overlay.classList.remove('show');
+   document.body.classList.remove('special-shake');
+ },1900);
+}
+
+function hatch(){
+ let p=pickPokemon(egg.key);
+ const pityBefore=state.shinyPity||0;
+ const isShiny=Math.random()<shinyChance();
+ if(isShiny)p=chooseShinyPokemon(p);
+ playSpecialEncounter(p);
+ const wasOwned=!!state.owned[p.id];
+ const wasShiny=!!state.shiny[p.id];
+ state.owned[p.id]=(state.owned[p.id]||0)+1;
+ state.hatches++;
+ let shardGain=0;
+ if(isShiny){
+   state.shiny[p.id]=(state.shiny[p.id]||0)+1;
+   state.shinyPity=0;
+   if(wasShiny){
+     shardGain=shinyShardReward(p.rarity);
+     state.shinyShards=(state.shinyShards||0)+shardGain;
+   }
+ }else{
+   state.shinyPity=Math.min(50,(state.shinyPity||0)+1);
+ }
+ trackMissionHatch(p,isShiny,wasOwned);
+ if(isMasterUnlocked())state.bossGauge=Math.min(100,(state.bossGauge||0)+bossGaugeGain(p.rarity));
+ let reward=0;
+ if(wasOwned){
+   state.dupes++;
+   reward=candyByRarity[p.rarity]+(isShiny?15:0);
+   state.candy+=reward;
+ }else if(isShiny){
+   reward=10;state.candy+=reward;
+ }
+ egg.hatched=true;
+ const passportGains=checkPassportRewards();
+ const shinyGains=checkShinyMilestones();
+ save();
+ flash(isShiny||rarityRank[p.rarity]>=5);
+ hatchSound(p.rarity,isShiny);
+ document.getElementById('result').innerHTML=`
+ <div class="result-card ${isShiny?'shiny':''}">
+   <div class="badges">${!wasOwned?'<span class="badge new">NEW</span>':''}${isShiny?'<span class="badge shiny">✨ 이로치</span>':''}${p.isPikachuVariant?'<span class="badge shiny">🌍 월드 피카츄</span>':''}</div>
+   ${renderPokemonVisual(p,isShiny,false)}
+   <div class="pname">#${dexNo(p)} ${p.ko}</div>
+   <div class="eng">${p.isPikachuVariant?`${p.country} · ${p.en}`:p.en}</div>
+   ${p.isPikachuVariant?'<div class="world-ribbon">WORLD PIKACHU EXCLUSIVE</div>':''}
+   <div class="rarity ${p.rarity}">${p.rarity}</div>
+   <div class="reward">${wasOwned?`중복 획득 · 사탕 +${reward}`:(isShiny?`첫 획득 이로치 보너스 · 사탕 +${reward}`:'도감에 새로 등록되었습니다.')}${shardGain?` · 💎 반짝조각 +${shardGain}`:''}${isShiny&&pityBefore>=50?' · 🎯 천장 확정!':''}${([6,94,130,133,143,144,145,146,150,151,243,244,245,249,250,251].includes(p.id)||isPikachuFamily(p))?' · 특별 등장 연출':''}${p.isPikachuVariant?' · 월드 피카츄 전용 이펙트':''}</div>
+ </div>`;
+ armNextEgg();
+ completionCheck();
+ updateAll();
+ toast(isShiny?`✨ 이로치 ${p.ko}!${shardGain?` · 💎 +${shardGain}`:''}`:(wasOwned?`${p.ko} 중복 · 사탕 +${reward}`:`${p.ko} 도감 등록!`));
+}
+function flash(fancy){
+ const f=document.getElementById('flash');f.classList.remove('go');void f.offsetWidth;f.classList.add('go');
+ if(fancy){
+   const wrap=document.getElementById('sparkles');
+   for(let i=0;i<18;i++){
+     const s=document.createElement('span');s.className='spark';s.textContent=i%3===0?'✦':'✨';
+     s.style.left=(15+Math.random()*70)+'%';s.style.top=(38+Math.random()*35)+'%';s.style.animationDelay=(Math.random()*.2)+'s';
+     wrap.appendChild(s);setTimeout(()=>s.remove(),1400);
+   }
+ }
+}
+
+function armNextEgg(){
+ nextReady=false;
+ if(nextReadyTimer)clearTimeout(nextReadyTimer);
+ document.getElementById('tapline').textContent='포켓몬을 확인해보세요…';
+ nextReadyTimer=setTimeout(()=>{
+   nextReady=true;
+   const card=document.querySelector('.result-card');
+   if(card)card.classList.add('ready-next');
+   document.getElementById('tapline').textContent='확인했다면 포켓몬 카드나 “다음 알” 버튼을 눌러주세요.';
+ },1500);
+}
+function goNextEgg(){
+ if(!egg||!egg.hatched)return;
+ if(!nextReady){
+   toast('조금만 기다려 주세요. 포켓몬을 확인하는 중입니다.');
+   return;
+ }
+ makeEgg();
+}
+
+
+const MASTER_THRESHOLDS=[1,3,10,25,50];
+const DAILY_MISSIONS=[
+ {id:'hatch',label:'알 20개 부화',target:20,candy:40,tickets:0},
+ {id:'high',label:'Epic 이상 3마리 획득',target:3,candy:60,tickets:0},
+ {id:'dupe',label:'중복 포켓몬 10마리',target:10,candy:50,tickets:0}
+];
+const WEEKLY_MISSIONS=[
+ {id:'hatch',label:'알 100개 부화',target:100,candy:150,tickets:0},
+ {id:'world',label:'월드 피카츄 3마리 획득',target:3,candy:120,tickets:1},
+ {id:'shiny',label:'이로치 1마리 획득',target:1,candy:150,tickets:1},
+ {id:'boss',label:'거대 알 보스 1회 격파',target:1,candy:250,tickets:1}
+];
+const PASSPORT_MILESTONES=[
+ {n:5,candy:50,tickets:0,label:'5개'},
+ {n:10,candy:100,tickets:0,label:'10개'},
+ {n:20,candy:200,tickets:1,label:'20개'},
+ {n:35,candy:350,tickets:1,label:'35개'},
+ {n:51,candy:700,tickets:2,label:'51개'}
+];
+const SHINY_MILESTONES=[
+ {n:10,candy:50,tickets:0},{n:30,candy:100,tickets:1},{n:60,candy:200,tickets:1},
+ {n:100,candy:350,tickets:2},{n:181,candy:1000,tickets:5},
+ {n:220,candy:700,tickets:3},{n:281,candy:2000,tickets:10}
+];
+
+function kantoOwnedCount(){return KANTO_COLLECTION.filter(p=>state.owned[p.id]>0).length}
+function johtoOwnedCount(){return JOHTO_POKEMON.filter(p=>state.owned[p.id]>0).length}
+function isMasterUnlocked(){
+ return !!state.completionReward || kantoOwnedCount()>=KANTO_MASTER_TOTAL;
+}
+function masteryStars(p){
+ const c=state.owned[p.id]||0;
+ let s=0;for(const t of MASTER_THRESHOLDS)if(c>=t)s++;
+ return s;
+}
+function masterySummary(){
+ let stars=0,crowns=0,gold=0;
+ FULL_POKEMON.forEach(p=>{
+   const s=masteryStars(p);stars+=s;
+   if(s>=5){crowns++;if(state.shiny[p.id])gold++}
+ });
+ return {stars,crowns,gold};
+}
+function trainerTitle(){
+ if(state.titles.nationalMaster)return '👑 전국도감 마스터';
+ if(state.titles.johtoChampion)return '🌿 성도 챔피언';
+ if(state.titles.worldChampion)return '🌍 월드 챔피언';
+ if((state.bossWins||0)>=10)return '🏅 관동의 영웅';
+ if((state.bossWins||0)>=5)return '🔥 보스 헌터';
+ if((state.bossWins||0)>=1)return '🥚 거대 알 파괴자';
+ if(isMasterUnlocked())return '🏆 관동 마스터';
+ return '트레이너';
+}
+function localDayKey(d=new Date()){
+ const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
+ return `${y}-${m}-${day}`;
+}
+function localWeekKey(d=new Date()){
+ const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+ const day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);
+ return localDayKey(x);
+}
+function ensureMissionPeriods(){
+ const dk=localDayKey(),wk=localWeekKey();
+ if(state.missions.dailyKey!==dk){
+   state.missions.dailyKey=dk;state.missions.daily={hatch:0,high:0,dupe:0};state.missions.dailyClaimed={};
+ }
+ if(state.missions.weeklyKey!==wk){
+   state.missions.weeklyKey=wk;state.missions.weekly={hatch:0,world:0,shiny:0,boss:0};state.missions.weeklyClaimed={};
+ }
+}
+function trackMissionHatch(p,isShiny,wasOwned){
+ ensureMissionPeriods();
+ state.missions.daily.hatch=(state.missions.daily.hatch||0)+1;
+ state.missions.weekly.hatch=(state.missions.weekly.hatch||0)+1;
+ if(rarityRank[p.rarity]>=rarityRank.Epic)state.missions.daily.high=(state.missions.daily.high||0)+1;
+ if(wasOwned)state.missions.daily.dupe=(state.missions.daily.dupe||0)+1;
+ if(p.isPikachuVariant)state.missions.weekly.world=(state.missions.weekly.world||0)+1;
+ if(isShiny)state.missions.weekly.shiny=(state.missions.weekly.shiny||0)+1;
+}
+function trackBossMission(){
+ ensureMissionPeriods();state.missions.weekly.boss=(state.missions.weekly.boss||0)+1;
+}
+function claimMission(scope,id){
+ if(!isMasterUnlocked())return;
+ ensureMissionPeriods();
+ const defs=scope==='daily'?DAILY_MISSIONS:WEEKLY_MISSIONS;
+ const def=defs.find(x=>x.id===id);if(!def)return;
+ const prog=state.missions[scope][id]||0,claimed=state.missions[scope+'Claimed'];
+ if(prog<def.target||claimed[id])return;
+ claimed[id]=true;state.candy+=def.candy;state.goldTickets=(state.goldTickets||0)+(def.tickets||0);
+ save();updateAll();toast(`미션 보상! 🍬 ${def.candy}${def.tickets?` · 🎟️ ${def.tickets}`:''}`);
+}
+function renderMissionRows(scope,defs,containerId){
+ const box=document.getElementById(containerId);if(!box)return;
+ const progress=state.missions[scope],claimed=state.missions[scope+'Claimed'];
+ box.innerHTML=defs.map(m=>{
+   const p=Math.min(progress[m.id]||0,m.target),done=p>=m.target,isClaimed=!!claimed[m.id];
+   const pct=Math.round(p/m.target*100);
+   return `<div class="mission-row">
+     <div><div class="mission-name">${m.label}</div><div class="mission-sub">${p}/${m.target} · 보상 🍬 ${m.candy}${m.tickets?` + 🎟️ ${m.tickets}`:''}</div><div class="mission-mini"><i style="width:${pct}%"></i></div></div>
+     <button class="mission-claim" data-scope="${scope}" data-mid="${m.id}" ${(!done||isClaimed)?'disabled':''}>${isClaimed?'완료':'받기'}</button>
+   </div>`;
+ }).join('');
+ box.querySelectorAll('.mission-claim').forEach(b=>b.onclick=()=>claimMission(b.dataset.scope,b.dataset.mid));
+}
+function renderMissions(){
+ ensureMissionPeriods();
+ const unlocked=isMasterUnlocked();
+ document.getElementById('missionLock').style.display=unlocked?'none':'block';
+ document.getElementById('missionContent').style.display=unlocked?'block':'none';
+ if(!unlocked)return;
+ renderMissionRows('daily',DAILY_MISSIONS,'dailyMissions');
+ renderMissionRows('weekly',WEEKLY_MISSIONS,'weeklyMissions');
+}
+function worldOwnedCount(){
+ return PIKACHU_VARIANTS.filter(p=>state.owned[p.id]>0).length;
+}
+function checkPassportRewards(){
+ const count=worldOwnedCount();let gained=[];
+ PASSPORT_MILESTONES.forEach(m=>{
+   if(count>=m.n&&!state.passportRewards[m.n]){
+     state.passportRewards[m.n]=true;state.candy+=m.candy;state.goldTickets=(state.goldTickets||0)+m.tickets;
+     gained.push(m);
+     if(m.n===51)state.titles.worldChampion=true;
+   }
+ });
+ return gained;
+}
+function renderPassport(){
+ const count=worldOwnedCount(), total=PIKACHU_VARIANTS.length;
+ document.getElementById('passportCount').textContent=`${count}/${total}`;
+ document.getElementById('passportBar').style.width=`${count/total*100}%`;
+ document.getElementById('passportMilestones').innerHTML=PASSPORT_MILESTONES.map(m=>`<span class="milestone ${state.passportRewards[m.n]?'done':''}">${state.passportRewards[m.n]?'✓ ':''}${m.label}</span>`).join('');
+ document.getElementById('passportGrid').innerHTML=PIKACHU_VARIANTS.map(p=>`<div class="stamp ${state.owned[p.id]?'done':''}"><b>W${String(p.variantNo).padStart(2,'0')}</b><span>${p.country}</span></div>`).join('');
+}
+function shinyOwnedCount(){return FULL_POKEMON.filter(p=>state.shiny[p.id]>0).length}
+function checkShinyMilestones(){
+ const count=shinyOwnedCount();let gained=[];
+ SHINY_MILESTONES.forEach(m=>{
+   if(count>=m.n&&!state.shinyMilestones[m.n]){
+     state.shinyMilestones[m.n]=true;state.candy+=m.candy;state.goldTickets=(state.goldTickets||0)+m.tickets;gained.push(m);
+   }
+ });
+ return gained;
+}
+function renderShinyHunt(){
+ const count=shinyOwnedCount(),unlocked=isMasterUnlocked(),pity=state.shinyPity||0;
+ document.getElementById('shinyDexCount').textContent=`${count}/${TOTAL_DEX}`;
+ document.getElementById('shinyHuntPercent').textContent=(count/TOTAL_DEX*100).toFixed(1)+'%';
+ document.getElementById('shinyHuntBar').style.width=`${count/TOTAL_DEX*100}%`;
+ document.getElementById('shinyHuntLock').style.display=unlocked?'none':'block';
+ document.getElementById('shinyHuntContent').style.display=unlocked?'block':'none';
+ document.getElementById('shinyMilestones').innerHTML=SHINY_MILESTONES.map(m=>`<span class="milestone ${state.shinyMilestones[m.n]?'done':''}">${state.shinyMilestones[m.n]?'✓ ':''}✨ ${m.n}</span>`).join('');
+ if(!unlocked)return;
+
+ document.getElementById('pityText').textContent=pity>=50?'50/50 · 다음 확정':`${pity}/50`;
+ document.getElementById('pityBar').style.width=`${Math.min(100,pity/50*100)}%`;
+ const pityBonus=pity>=25?Math.min((pity-24),26):0;
+ document.getElementById('pityChanceText').textContent=pity>=50
+   ? '다음 일반 알 부화는 이로치 100% 확정'
+   : `현재 이로치 확률 ${(shinyChance()*100).toFixed(2)}%${pityBonus?` · 천장 보정 +${pityBonus}%p`:''}`;
+ document.getElementById('shardPanelCount').textContent=state.shinyShards||0;
+
+ const candidates=shinyCandidateOptions();
+ const craft=document.getElementById('shinyCraftSelect');
+ const craftPrev=craft.value;
+ craft.innerHTML=candidates.length
+   ? candidates.map(p=>`<option value="${p.id}">#${dexNo(p)} ${p.ko} · ${p.rarity}</option>`).join('')
+   : '<option value="">제작 가능한 포켓몬 없음</option>';
+ if(candidates.some(p=>String(p.id)===craftPrev))craft.value=craftPrev;
+ document.getElementById('craftShinyBtn').disabled=(state.shinyShards||0)<100||!candidates.length;
+
+ const radar=document.getElementById('shinyRadarSelect');
+ const radarUnlocked=!!state.nationalCompletionReward;
+ const active=FULL_POKEMON.find(p=>p.id===Number(state.shinyRadarTarget));
+ if(active&&state.shiny[active.id])state.shinyRadarTarget=null;
+ const radarCandidates=shinyCandidateOptions();
+ radar.innerHTML='<option value="">레이더 해제</option>'+radarCandidates.map(p=>`<option value="${p.id}">#${dexNo(p)} ${p.ko} · ${p.rarity}</option>`).join('');
+ if(state.shinyRadarTarget&&radarCandidates.some(p=>p.id===Number(state.shinyRadarTarget)))radar.value=String(state.shinyRadarTarget);
+ document.getElementById('setRadarBtn').disabled=!radarUnlocked;
+ document.getElementById('radarLockLabel').textContent=radarUnlocked?'해금됨':'전국도감 필요';
+ const target=FULL_POKEMON.find(p=>p.id===Number(state.shinyRadarTarget));
+ document.getElementById('radarStatus').textContent=!radarUnlocked
+   ? '전국도감 281종 완성 후 사용 가능 · 이로치 등장 시 30% 확률로 목표 포켓몬을 추적합니다.'
+   : (target?`현재 목표: #${dexNo(target)} ${target.ko} · 이로치 등장 시 30% 추적`:'목표 없음 · 아직 이로치가 없는 보유 포켓몬을 지정할 수 있습니다.');
+}
+function renderMaster(){
+ const unlocked=isMasterUnlocked(),s=masterySummary();
+ document.getElementById('masterLock').style.display=unlocked?'none':'block';
+ document.getElementById('masterContent').style.display=unlocked?'block':'none';
+ document.getElementById('trainerTitle').textContent=trainerTitle();
+ document.getElementById('masterStars').textContent=s.stars;
+ document.getElementById('masterCrowns').textContent=s.crowns;
+ document.getElementById('goldCrowns').textContent=s.gold;
+ document.getElementById('masterProgress').style.width=`${s.stars/(TOTAL_DEX*5)*100}%`;
+ document.getElementById('masterStarTotal').textContent=TOTAL_DEX*5;
+ document.getElementById('masterCrownTotal').textContent=TOTAL_DEX;
+}
+function bossGaugeGain(rarity){
+ return {Common:3,Uncommon:4,Rare:6,Epic:8,Legendary:12,Mythical:15}[rarity]||3;
+}
+function renderBossPanel(){
+ const unlocked=isMasterUnlocked(),g=Math.min(100,state.bossGauge||0);
+ document.getElementById('bossGaugeText').textContent=Math.round(g)+'%';
+ document.getElementById('bossGaugeBar').style.width=g+'%';
+ document.getElementById('bossStatus').textContent=!unlocked?'도감 완성 후 해금됩니다.':(bossMode?'보스 알을 제한 시간 안에 깨세요!':g>=100?`도전 가능 · 격파 ${state.bossWins||0}회`:`알을 부화해 게이지를 채우세요 · 격파 ${state.bossWins||0}회`);
+ const b=document.getElementById('bossBtn');b.disabled=!unlocked||g<100||bossMode;b.textContent=bossMode?'도전 중…':(g>=100?'🔥 보스 알 도전':'보스 게이지 충전 중');
+ const tb=document.getElementById('goldTicketBtn');tb.disabled=(state.goldTickets||0)<=0||bossMode;tb.textContent=`🎟️ 황금 알 티켓 x${state.goldTickets||0}`;
+}
+function useGoldTicket(){
+ if(bossMode||state.goldTickets<=0)return;
+ state.goldTickets--;state.forceGoldNext=true;save();makeEgg();updateAll();toast('🎟️ 특별한 황금 알이 준비되었습니다!');
+}
+function startBoss(){
+ if(!isMasterUnlocked()||state.bossGauge<100||bossMode)return;
+ bossMode=true;nextReady=false;if(nextReadyTimer)clearTimeout(nextReadyTimer);
+ const need=Math.max(24,44-(state.up.tap||0)*2);
+ egg={key:'boss',label:'전설의 거대 알',total:need,left:need,hatched:false,boss:true};
+ bossDeadline=Date.now()+12000;
+ const el=document.getElementById('egg');el.className='egg boss';
+ document.getElementById('result').innerHTML='<div style="color:#ffc47d;font-weight:900">🔥 12초 안에 거대 알을 깨세요!</div>';
+ renderBossState();
+ if(bossTimer)clearInterval(bossTimer);
+ bossTimer=setInterval(renderBossState,100);
+ updateAll();
+}
+function renderBossState(){
+ if(!bossMode||!egg)return;
+ const ms=Math.max(0,bossDeadline-Date.now()),sec=(ms/1000).toFixed(1);
+ const pct=Math.round((egg.total-egg.left)/egg.total*100);
+ document.getElementById('progressBar').style.width=pct+'%';
+ document.getElementById('eggInfo').textContent=`🔥 전설의 거대 알 · ${sec}초`;
+ document.getElementById('tapline').textContent=`${egg.left}번 더! · 남은 시간 ${sec}초`;
+ if(ms<=0)failBoss();
+}
+function bossTap(){
+ if(!bossMode||!egg||egg.left<=0)return;
+ const el=document.getElementById('egg');el.classList.remove('hit');void el.offsetWidth;el.classList.add('hit');
+ egg.left--;beep(190+Math.random()*90,.028,.025);
+ if(egg.left<=0)winBoss();else renderBossState();
+}
+function failBoss(){
+ if(!bossMode)return;
+ bossMode=false;if(bossTimer){clearInterval(bossTimer);bossTimer=null}
+ egg.hatched=true;
+ document.getElementById('result').innerHTML='<div class="result-card"><div class="pname">💥 시간 초과!</div><div class="eng">게이지는 유지됩니다. 다시 도전할 수 있습니다.</div></div>';
+ document.getElementById('eggInfo').textContent='거대 알 도전 실패';
+ document.getElementById('tapline').textContent='보스 알 도전 버튼으로 다시 도전하세요.';
+ armNextEgg();updateAll();toast('시간 초과! 게이지는 그대로 유지됩니다.');
+}
+function winBoss(){
+ if(!bossMode)return;
+ bossMode=false;if(bossTimer){clearInterval(bossTimer);bossTimer=null}
+ let ids=[144,145,146,150,151];
+ if(state.johtoCompletionReward)ids=ids.concat([243,244,245,249,250,251]);
+ const id=ids[Math.floor(Math.random()*ids.length)],p=FULL_POKEMON.find(x=>x.id===id);
+ const isShiny=Math.random()<Math.min(shinyChance()*1.5,.12),wasOwned=!!state.owned[p.id];
+ state.owned[p.id]=(state.owned[p.id]||0)+1;if(isShiny)state.shiny[p.id]=(state.shiny[p.id]||0)+1;
+ state.bossGauge=0;state.bossWins=(state.bossWins||0)+1;state.bossMedals=(state.bossMedals||0)+1;state.candy+=100;
+ trackBossMission();checkShinyMilestones();
+ egg.hatched=true;save();playSpecialEncounter(p);flash(true);hatchSound(p.rarity,isShiny);
+ document.getElementById('result').innerHTML=`<div class="result-card boss-reward ${isShiny?'shiny':''}">
+   <div class="badges"><span class="badge boss-badge">🔥 BOSS REWARD</span>${isShiny?'<span class="badge shiny">✨ 이로치</span>':''}</div>
+   ${renderPokemonVisual(p,isShiny,false)}
+   <div class="pname">#${dexNo(p)} ${p.ko}</div><div class="eng">거대 알 격파 보상 · 🍬 +100</div>
+   <div class="rarity ${p.rarity}">${p.rarity}</div><div class="reward">보스 메달 ${state.bossMedals}개 · 격파 ${state.bossWins}회</div></div>`;
+ armNextEgg();updateAll();toast(`🔥 거대 알 격파! ${p.ko} + 사탕 100`);
+}
+
+function completionCheck(){
+ const kc=kantoOwnedCount(),jc=johtoOwnedCount();
+ let msgs=[];
+ if(kc>=KANTO_MASTER_TOTAL&&!state.completionReward){
+   state.completionReward=true;state.candy+=500;
+   msgs.push('🏆 관동+월드 완성! 관동 마스터 해금 · 사탕 +500');
+ }
+ if(jc>=JOHTO_TOTAL&&!state.johtoCompletionReward){
+   state.johtoCompletionReward=true;state.candy+=1000;state.goldTickets=(state.goldTickets||0)+3;
+   state.titles.johtoChampion=true;
+   msgs.push('🌿 성도도감 완성! 사탕 +1000 · 티켓 +3');
+ }
+ if(kc>=KANTO_MASTER_TOTAL&&jc>=JOHTO_TOTAL&&!state.nationalCompletionReward){
+   state.nationalCompletionReward=true;state.candy+=1500;state.goldTickets=(state.goldTickets||0)+5;
+   state.titles.nationalMaster=true;
+   msgs.push('👑 전국도감 281종 완성! 사탕 +1500 · 티켓 +5');
+ }
+ save();
+ if(msgs.length)toast(msgs[msgs.length-1]);
+}
+function cost(type){
+ const lv=state.up[type]||0;
+ if(type==='shiny'&&lv>=10)return 450+(lv-10)*180;
+ const base={tap:18,egg:30,shiny:45}[type];
+ return Math.round(base*Math.pow(1.72,lv));
+}
+function buy(type){
+ const c=cost(type);
+ if(state.candy<c)return;
+ if(type==='tap'&&state.up.tap>=7)return;
+ if(type==='egg'&&state.up.egg>=10)return;
+ if(type==='shiny'&&state.up.shiny>=(isMasterUnlocked()?20:10))return;
+ state.candy-=c;state.up[type]++;save();ensureMissionPeriods();
+completionCheck();
+if(isMasterUnlocked()){
+ const pg=checkPassportRewards(),sg=checkShinyMilestones();
+ if(pg.length||sg.length)save();
+}
+updateAll();makeEgg();toast('업그레이드 완료!');
+}
+function updateShop(){
+ const specs=[
+   ['tap','tapLv','buyTap',7,`현재 필요 터치 -${state.up.tap||0}`],
+   ['egg','eggLv','buyEgg',10,`황금/무지개 보정 +${(state.up.egg||0)}`],
+   ['shiny','shinyLv','buyShiny',isMasterUnlocked()?20:10,`${(state.up.shiny||0)>=10?'마스터 ':' '}기본 이로치 ${(baseShinyChance()*100).toFixed(2)}%`]
+ ];
+ specs.forEach(([t,lvId,bId,max,desc])=>{
+   const lv=state.up[t]||0,c=cost(t),maxed=lv>=max;
+   document.getElementById(lvId).textContent=`Lv.${lv}/${max} · ${desc}`;
+   const b=document.getElementById(bId);b.textContent=maxed?'MAX':`🍬 ${c} 구매`;b.disabled=maxed||state.candy<c;
+ });
+}
+function updateStats(){
+ const count=FULL_POKEMON.filter(p=>state.owned[p.id]>0).length;
+ const shinyCount=FULL_POKEMON.filter(p=>state.shiny[p.id]>0).length;
+ const kc=kantoOwnedCount(),jc=johtoOwnedCount();
+ document.getElementById('dexCount').textContent=count;
+ const dexTotal=document.getElementById('dexTotal'); if(dexTotal) dexTotal.textContent=TOTAL_DEX;
+ document.getElementById('shinyCount').textContent=shinyCount;
+ document.getElementById('candy').textContent=state.candy;
+ document.getElementById('hatchCount').textContent=state.hatches;
+ document.getElementById('ticketCount').textContent=state.goldTickets||0;
+ document.getElementById('shardCount').textContent=state.shinyShards||0;
+ document.getElementById('completion').textContent=(count/TOTAL_DEX*100).toFixed(1)+'%';
+ document.getElementById('kantoCount').textContent=kc;
+ document.getElementById('johtoCount').textContent=jc;
+ document.getElementById('trophy').classList.toggle('show',state.completionReward);
+ document.getElementById('johtoTrophy').classList.toggle('show',state.johtoCompletionReward);
+ document.getElementById('nationalTrophy').classList.toggle('show',state.nationalCompletionReward);
+}
+function renderDex(){
+ const q=document.getElementById('search').value.trim().toLowerCase();
+ let arr=FULL_POKEMON.filter(p=>{
+   const owned=!!state.owned[p.id],sh=!!state.shiny[p.id];
+   const hit=String(p.id).includes(q)||dexNo(p).toLowerCase().includes(q)||p.ko.toLowerCase().includes(q)||p.en.toLowerCase().includes(q)||(p.country||'').toLowerCase().includes(q);
+   if(q&&!hit)return false;
+   if(filter==='owned'&&!owned)return false;
+   if(filter==='missing'&&owned)return false;
+   if(filter==='shiny'&&!sh)return false;
+   if(filter==='kanto'&&!(p.id<=151||p.isPikachuVariant))return false;
+   if(filter==='johto'&&p.gen!==2)return false;
+   if(filter==='pikachu'&&!isPikachuFamily(p))return false;
+   if(filter==='master'&&masteryStars(p)<5)return false;
+   return true;
+ });
+ if(filter==='pikachu'){
+   arr.sort((a,b)=>{
+     if(a.id===25)return -1;
+     if(b.id===25)return 1;
+     return (a.variantNo||999)-(b.variantNo||999);
+   });
+ }
+ document.getElementById('dexGrid').innerHTML=arr.map(p=>{
+   const owned=!!state.owned[p.id],sh=!!state.shiny[p.id];
+   return `<div class="dex-card ${owned?'':'locked'} ${p.isPikachuVariant?'pikachu-card':''}">
+     ${sh?'<div class="shiny-dot">✨</div>':''}
+     <div class="dex-no">#${dexNo(p)}</div>
+     ${owned
+       ? renderPokemonVisual(p,sh,true)
+       : (p.isPikachuVariant
+           ? `<div class="pikachu-preview-locked">${renderPokemonVisual(p,false,true)}</div>`
+           : '<div style="height:78px"></div>')}
+     <div class="dex-name">${owned?p.ko:'???'}</div>
+     ${owned&&isMasterUnlocked()?`<div class="master-stars">${'★'.repeat(masteryStars(p))}<span class="off">${'★'.repeat(5-masteryStars(p))}</span>${masteryStars(p)>=5?`<span class="crown ${state.shiny[p.id]?'gold':''}">${state.shiny[p.id]?'🌟':'👑'}</span>`:''}</div>`:''}
+     <div class="dex-meta">${owned?`${p.rarity}${p.isPikachuVariant?` · ${p.country}`:''} · x${state.owned[p.id]}`:(p.isPikachuVariant?'월드 피카츄 · 미발견':'미발견')}</div>
+   </div>`;
+ }).join('')||'<div style="color:#9fb0c6;font-size:12px">검색 결과가 없습니다.</div>';
+
+}
+
+function drawPikaCanvases(root=document){}
+
+function updateAll(){
+ ensureMissionPeriods();
+ renderMaster();renderMissions();renderPassport();renderShinyHunt();renderBossPanel();
+ updateStats();updateShop();renderDex();
+ save();
+}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1450)}
+function beep(freq=440,dur=.05,vol=.025){
+ if(!sound)return;const A=window.AudioContext||window.webkitAudioContext;if(!A)return;
+ const ctx=new A(),o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=freq;g.gain.value=vol;o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+dur);
+}
+function hatchSound(r,sh){
+ const b={Common:420,Uncommon:490,Rare:570,Epic:670,Legendary:780,Mythical:920}[r]||500;
+ beep(b,.08,.03);setTimeout(()=>beep(b*1.25,.09,.03),90);setTimeout(()=>beep(b*(sh?1.72:1.5),.12,.03),190);
+}
+document.getElementById('egg').addEventListener('click',tapEgg);
+document.getElementById('result').addEventListener('click',(e)=>{
+ const card=e.target.closest('.result-card');
+ if(card&&egg&&egg.hatched)goNextEgg();
+});
+document.getElementById('nextBtn').addEventListener('click',()=>{
+ if(bossMode){toast('보스 알 도전 중입니다!');return;}
+ if(egg&&egg.hatched)goNextEgg();
+ else makeEgg();
+});
+document.getElementById('buyTap').addEventListener('click',()=>buy('tap'));
+document.getElementById('buyEgg').addEventListener('click',()=>buy('egg'));
+document.getElementById('buyShiny').addEventListener('click',()=>buy('shiny'));
+document.getElementById('craftShinyBtn').addEventListener('click',craftSelectedShiny);
+document.getElementById('setRadarBtn').addEventListener('click',setShinyRadar);
+document.getElementById('bossBtn').addEventListener('click',startBoss);
+document.getElementById('goldTicketBtn').addEventListener('click',useGoldTicket);
+document.getElementById('soundBtn').addEventListener('click',()=>{sound=!sound;document.getElementById('soundBtn').textContent='효과음 '+(sound?'ON':'OFF')});
+document.getElementById('search').addEventListener('input',renderDex);
+document.querySelectorAll('.filter').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');filter=b.dataset.f;renderDex()}));
+document.getElementById('resetBtn').addEventListener('click',()=>{
+ if(confirm('도감, 사탕, 업그레이드와 엔드게임 진행상황을 모두 초기화할까요?')){
+   bossMode=false;if(bossTimer){clearInterval(bossTimer);bossTimer=null}
+   state=fresh();save();ensureMissionPeriods();updateAll();makeEgg();toast('초기화 완료');
+ }
+});
+ensureMissionPeriods();
+if(isMasterUnlocked()){
+ const pg=checkPassportRewards(),sg=checkShinyMilestones();
+ if(pg.length||sg.length)save();
+}
+updateAll();makeEgg();
+</script>
+</body>
+</html>
