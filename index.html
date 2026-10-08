@@ -133,7 +133,7 @@ button{-webkit-tap-highlight-color:transparent}
 .upgrade .u-lv{font-size:11px;color:#c8d4e5;margin-bottom:6px}
 .upgrade button{width:100%;border:0;border-radius:11px;padding:8px 7px;background:#254f9c;color:white;font-weight:850;cursor:pointer;font-size:11px}
 .upgrade button:disabled{opacity:.4}
-.dex-tools{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.dex-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:12px 0 8px}.dex-tab{background:#17263e;border:1px solid #365173;border-radius:11px;color:#cbdcf2;padding:10px 5px;font-size:12px;font-weight:800;cursor:pointer}.dex-tab span{display:block;font-size:10px;color:#9fb0c6;margin-top:4px}.dex-tab.active{background:#245a87;border-color:#65b8ff;color:white}.dex-tab.active span{color:#dceeff}@media(max-width:420px){.dex-tab{font-size:11px;padding:9px 3px}}.dex-tools{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
 .search{flex:1;min-width:150px;background:#07101d;color:#fff;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 11px;outline:none}
 .filters{display:flex;gap:5px;flex-wrap:wrap}.filter{border:1px solid rgba(255,255,255,.08);background:#0a1627;color:#bdc9d9;border-radius:999px;padding:7px 9px;font-size:11px;cursor:pointer}.filter.active{background:#315fb5;color:#fff}
 .dex-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;max-height:410px;overflow:auto;padding-right:3px}
@@ -630,17 +630,14 @@ body.special-shake .app{animation:screenShake .35s ease}
 
       <section class="panel dex">
         <div class="section-title"><span>📘 전국도감</span><span class="minor" id="completion">0.0%</span></div>
-        <div class="generation-row"><span>관동+월드 <b id="kantoCount">0</b>/181</span><span>성도 <b id="johtoCount">0</b>/100</span></div>
-        <div class="dex-tools">
+        <div class="generation-row"><span>1세대 <b id="kantoCount">0</b>/151</span><span>2세대 <b id="johtoCount">0</b>/100</span><span>월드 피카츄 <b id="worldDexCount">0</b>/30</span></div>
+        <div class="dex-tabs" role="tablist" aria-label="도감 분류"><button type="button" class="dex-tab active" data-dex-tab="gen1" aria-selected="true">🌱 1세대 <span id="gen1TabCount">0/151</span></button><button type="button" class="dex-tab" data-dex-tab="gen2" aria-selected="false">🌿 2세대 <span id="gen2TabCount">0/100</span></button><button type="button" class="dex-tab" data-dex-tab="world" aria-selected="false">🌍 월드 피카츄 <span id="worldTabCount">0/30</span></button></div><div class="dex-tools">
           <input id="search" class="search" placeholder="번호 / 한글 / 영어 이름 검색">
           <div class="filters">
             <button class="filter active" data-f="all">전체</button>
             <button class="filter" data-f="owned">획득</button>
             <button class="filter" data-f="missing">미획득</button>
             <button class="filter" data-f="shiny">이로치</button>
-            <button class="filter" data-f="kanto">관동</button>
-            <button class="filter" data-f="johto">성도</button>
-            <button class="filter" data-f="pikachu">피카츄</button>
             <button class="filter" data-f="master">👑 마스터</button>
           </div>
         </div>
@@ -1455,9 +1452,21 @@ function updateStats(){
  document.getElementById('johtoTrophy').classList.toggle('show',state.johtoCompletionReward);
  document.getElementById('nationalTrophy').classList.toggle('show',state.nationalCompletionReward);
 }
+let dexTab='gen1';
 function renderDex(){
+ const gen1=FULL_POKEMON.filter(p=>p.id>=1&&p.id<=151&&!p.isPikachuVariant);
+ const gen2=FULL_POKEMON.filter(p=>p.gen===2&&!p.isPikachuVariant);
+ const world=FULL_POKEMON.filter(p=>p.isPikachuVariant);
+ const groups={gen1,gen2,world};
+ for(const [key,list] of Object.entries(groups)){
+   const el=document.getElementById(key+'TabCount');
+   if(el)el.textContent=list.filter(p=>!!state.owned[p.id]).length+'/'+list.length;
+ }
+ const worldCount=document.getElementById('worldDexCount');
+ if(worldCount)worldCount.textContent=world.filter(p=>!!state.owned[p.id]).length;
+ document.querySelectorAll('.dex-tab').forEach(b=>{const active=b.dataset.dexTab===dexTab;b.classList.toggle('active',active);b.setAttribute('aria-selected',String(active));});
  const q=document.getElementById('search').value.trim().toLowerCase();
- let arr=FULL_POKEMON.filter(p=>{
+ let arr=(groups[dexTab]||gen1).filter(p=>{
    const owned=!!state.owned[p.id],sh=!!state.shiny[p.id];
    const hit=String(p.id).includes(q)||dexNo(p).toLowerCase().includes(q)||p.ko.toLowerCase().includes(q)||p.en.toLowerCase().includes(q)||(p.country||'').toLowerCase().includes(q);
    if(q&&!hit)return false;
@@ -1531,6 +1540,7 @@ document.getElementById('bossBtn').addEventListener('click',startBoss);
 document.getElementById('goldTicketBtn').addEventListener('click',useGoldTicket);
 document.getElementById('soundBtn').addEventListener('click',()=>{sound=!sound;document.getElementById('soundBtn').textContent='효과음 '+(sound?'ON':'OFF')});
 document.getElementById('search').addEventListener('input',renderDex);
+document.querySelectorAll('.dex-tab').forEach(b=>b.addEventListener('click',()=>{dexTab=b.dataset.dexTab;renderDex();}));
 document.querySelectorAll('.filter').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');filter=b.dataset.f;renderDex()}));
 document.getElementById('resetBtn').addEventListener('click',()=>{
  if(confirm('도감, 사탕, 업그레이드와 엔드게임 진행상황을 모두 초기화할까요?')){
