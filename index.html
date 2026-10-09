@@ -473,7 +473,7 @@ body.special-shake .app{animation:screenShake .35s ease}
 <body>
 <div class="app">
   <div class="topbar">
-    <div class="logo">🥚 포켓몬 알 클리커 <small>V5.3 HD · 월드 피카츄 화질 최적화</small></div>
+    <div class="logo" id="devRestoreLogo" title="세이브 복구">🥚 포켓몬 알 클리커 <small>V5.3 HD · 월드 피카츄 화질 최적화</small></div>
     <div class="statrow">
       <div class="stat">📘 전국도감 <b id="dexCount">0</b>/<span id="dexTotal">281</span></div>
       <div class="stat">✨ 이로치 <b id="shinyCount">0</b></div>
@@ -1526,6 +1526,22 @@ function hatchSound(r,sh){
  const b={Common:420,Uncommon:490,Rare:570,Epic:670,Legendary:780,Mythical:920}[r]||500;
  beep(b,.08,.03);setTimeout(()=>beep(b*1.25,.09,.03),90);setTimeout(()=>beep(b*(sh?1.72:1.5),.12,.03),190);
 }
+// Personal save recovery: tap the title five times, then enter the recovery code.
+let restoreTapCount=0,restoreTapLast=0;
+document.getElementById('devRestoreLogo').addEventListener('click',()=>{
+ const now=Date.now();restoreTapCount=now-restoreTapLast<1800?restoreTapCount+1:1;restoreTapLast=now;
+ if(restoreTapCount<5)return;restoreTapCount=0;
+ const code=prompt('세이브 복구 코드를 입력하세요.');
+ if(code!=='SHINY291')return;
+ if(!confirm('일반 도감 291종을 모두 채우고 사탕 9,999,999개를 지급할까요? 이로치 수집 기록은 초기화됩니다.'))return;
+ try{localStorage.setItem('pokeEggV2_recovery_backup_'+Date.now(),JSON.stringify(state));}catch(e){}
+ FULL_POKEMON.forEach(p=>{state.owned[p.id]=Math.max(1,Number(state.owned[p.id])||0)});
+ state.shiny={};state.shinyPity=0;state.shinyRadarTarget=null;
+ state.candy=9999999;
+ state.completionReward=true;state.johtoCompletionReward=true;state.nationalCompletionReward=true;
+ state.titles=state.titles||{};state.titles.johtoChampion=true;state.titles.nationalMaster=true;
+ save();updateAll();renderDex();toast('🎉 도감 291종 복구! 이로치 수집을 시작하세요.');
+});
 document.getElementById('egg').addEventListener('click',tapEgg);
 document.getElementById('result').addEventListener('click',(e)=>{
  const card=e.target.closest('.result-card');
